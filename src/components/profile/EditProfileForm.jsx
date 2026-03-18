@@ -62,6 +62,20 @@ export default function EditProfileForm({ profile, user }) {
       <h3 className="font-bold text-foreground">Edit My Profile</h3>
 
       <div>
+        <label className="text-xs font-semibold text-muted-foreground mb-1 block">
+          Short Bio <span className="font-normal text-muted-foreground">({form.tagline.length}/50)</span>
+        </label>
+        <input
+          type="text"
+          maxLength={50}
+          value={form.tagline}
+          onChange={e => setForm({ ...form, tagline: e.target.value })}
+          placeholder="e.g. Passionate about making the world better"
+          className="w-full border border-border rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-primary"
+        />
+      </div>
+
+      <div>
         <label className="text-xs font-semibold text-muted-foreground mb-1 block">My Story / Bio</label>
         <textarea
           className="w-full border border-border rounded-xl p-3 text-sm text-foreground resize-none focus:outline-none focus:ring-1 focus:ring-primary"
