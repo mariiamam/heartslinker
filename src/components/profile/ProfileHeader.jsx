@@ -82,10 +82,7 @@ export default function ProfileHeader({ profile, user }) {
           </div>
         </div>
 
-        {/* Bio */}
-        {profile?.bio && (
-          <p className="mt-4 text-foreground/80 max-w-2xl leading-relaxed">{profile.bio}</p>
-        )}
+
 
         {/* Causes */}
         {profile?.causes?.length > 0 && (
