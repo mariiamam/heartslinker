@@ -111,8 +111,24 @@ export default function NGODirectory() {
                     {ngo.website && <span className="flex items-center gap-1"><Globe className="w-3 h-3" /> {ngo.website}</span>}
                   </div>
                 </div>
-                <div className="text-muted-foreground flex-shrink-0">
-                  {isExpanded ? <ChevronUp className="w-5 h-5" /> : <ChevronDown className="w-5 h-5" />}
+                <div className="flex items-center gap-2 flex-shrink-0">
+                  {user && (
+                    <button
+                      onClick={e => {
+                        e.stopPropagation();
+                        if (followedIds.has(ngo.id)) {
+                          const follow = follows.find(f => f.ngo_id === ngo.id);
+                          if (follow) unfollowMutation.mutate(follow.id);
+                        } else {
+                          followMutation.mutate(ngo.id);
+                        }
+                      }}
+                      title={followedIds.has(ngo.id) ? "Unfollow NGO" : "Follow NGO for updates"}
+                      className={`p-1.5 rounded-lg transition-colors ${followedIds.has(ngo.id) ? "text-primary bg-primary/10" : "text-muted-foreground hover:text-primary hover:bg-primary/10"}`}>
+                      {followedIds.has(ngo.id) ? <Bell className="w-4 h-4" /> : <BellOff className="w-4 h-4" />}
+                    </button>
+                  )}
+                  {isExpanded ? <ChevronUp className="w-5 h-5 text-muted-foreground" /> : <ChevronDown className="w-5 h-5 text-muted-foreground" />}
                 </div>
               </div>
 
