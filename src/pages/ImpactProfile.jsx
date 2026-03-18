@@ -44,6 +44,12 @@ export default function ImpactProfile() {
     enabled: !!user?.email,
   });
 
+  const { data: hourEntries = [] } = useQuery({
+    queryKey: ["my-hour-entries", user?.email],
+    queryFn: () => base44.entities.HourEntry.filter({ user_email: user?.email }),
+    enabled: !!user?.email,
+  });
+
   const profile = profiles[0] || null;
   const publicActivities = activities.filter(a => a.is_visible !== false);
 
@@ -109,6 +115,11 @@ export default function ImpactProfile() {
             </div>
           </div>
         )}
+
+        {/* Impact Analytics */}
+        <div className="px-6 md:px-10 mt-5">
+          <ImpactAnalytics profile={profile} activities={activities} hourEntries={hourEntries} />
+        </div>
 
         {/* Posts — Instagram-style feed */}
         <div className="px-6 md:px-10 mt-5">

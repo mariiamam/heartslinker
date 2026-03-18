@@ -9,6 +9,7 @@ import { Link } from "react-router-dom";
 
 export default function MyCampaigns() {
   const [user, setUser] = useState(null);
+  const [filters, setFilters] = useState({ search: "", status: "All", type: "All" });
 
   useEffect(() => {
     base44.auth.me().then(setUser).catch(() => {});
@@ -42,7 +43,13 @@ export default function MyCampaigns() {
             <p className="text-sm text-muted-foreground">{activities.length} activit{activities.length !== 1 ? "ies" : "y"}</p>
           </div>
         </div>
-        <MyCampaignsWindow activities={activities} userEmail={user.email} />
+        <ActivityFilters filters={filters} onChange={setFilters} />
+        <MyCampaignsWindow activities={activities.filter(a => {
+          const matchSearch = !filters.search || a.title?.toLowerCase().includes(filters.search.toLowerCase()) || a.ngo_name?.toLowerCase().includes(filters.search.toLowerCase());
+          const matchStatus = filters.status === "All" || a.status === filters.status;
+          const matchType = filters.type === "All" || a.type === filters.type;
+          return matchSearch && matchStatus && matchType;
+        })} userEmail={user.email} />
       </div>
     </div>
   );

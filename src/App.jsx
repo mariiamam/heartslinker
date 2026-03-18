@@ -54,6 +54,7 @@ const AuthenticatedApp = () => {
       <Route path="/MyUpdates" element={<MyUpdates />} />
       <Route path="/MyCampaigns" element={<MyCampaigns />} />
       <Route path="/Settings" element={<Settings />} />
+      <Route path="/SocialFeed" element={<SocialFeed />} />
       <Route path="*" element={<PageNotFound />} />
     </Routes>
   );
