@@ -1,4 +1,4 @@
-import { Users, Clock, CheckCircle, Activity } from "lucide-react";
+import { Users, Clock, CheckCircle, Zap } from "lucide-react";
 
 const Stat = ({ icon: Icon, value, label, color }) => (
   <div className="bg-white rounded-2xl border border-border p-5 flex items-center gap-4 shadow-sm">
