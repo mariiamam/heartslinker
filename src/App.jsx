@@ -12,6 +12,8 @@ import Landing from "./pages/Landing";
 import Campaigns from "./pages/Campaigns";
 import Volunteering from "./pages/Volunteering";
 import NGODirectory from "./pages/NGODirectory";
+import MyUpdates from "./pages/MyUpdates";
+import MyCampaigns from "./pages/MyCampaigns";
 
 const AuthenticatedApp = () => {
   const { isLoadingAuth, isLoadingPublicSettings, authError, navigateToLogin } = useAuth();
@@ -47,6 +49,8 @@ const AuthenticatedApp = () => {
       <Route path="/NGODirectory" element={<NGODirectory />} />
       <Route path="/ImpactProfile" element={<ImpactProfile />} />
       <Route path="/NGODashboard" element={<NGODashboard />} />
+      <Route path="/MyUpdates" element={<MyUpdates />} />
+      <Route path="/MyCampaigns" element={<MyCampaigns />} />
       <Route path="*" element={<PageNotFound />} />
     </Routes>
   );
