@@ -52,6 +52,7 @@ const AuthenticatedApp = () => {
       <Route path="/NGODashboard" element={<NGODashboard />} />
       <Route path="/MyUpdates" element={<MyUpdates />} />
       <Route path="/MyCampaigns" element={<MyCampaigns />} />
+      <Route path="/Settings" element={<Settings />} />
       <Route path="*" element={<PageNotFound />} />
     </Routes>
   );
