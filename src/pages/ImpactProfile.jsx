@@ -162,24 +162,6 @@ export default function ImpactProfile() {
           <ProfilePostsSection posts={posts} userEmail={user.email} isOwner={true} />
         </div>
 
-        {/* Private section — Updates + Campaigns in a grid */}
-        <div className="px-6 md:px-10 mt-5 grid md:grid-cols-2 gap-5">
-          {/* Updates Window */}
-          <div>
-            <div className="flex items-center gap-2 mb-2">
-              <Bell className="w-4 h-4 text-primary" />
-              <h3 className="font-semibold text-sm text-foreground">Updates</h3>
-              {unread > 0 && <span className="bg-primary text-white text-xs px-1.5 py-0.5 rounded-full font-bold">{unread}</span>}
-            </div>
-            <UpdatesWindow notifications={notifications} />
-          </div>
-
-          {/* My Campaigns */}
-          <div>
-            <MyCampaignsWindow activities={activities} userEmail={user.email} />
-          </div>
-        </div>
-
         {/* Extra Tabs */}
         <div className="px-6 md:px-10 mt-8">
           <Tabs defaultValue="badges">
