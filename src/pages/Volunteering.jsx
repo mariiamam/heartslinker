@@ -7,11 +7,15 @@ import { Input } from "@/components/ui/input";
 
 const CAUSES = ["All", "Education", "Food", "Health", "Environment", "Refugees", "Children", "Shelter"];
 const LOCATIONS = ["All Locations", "Africa", "Asia", "Middle East", "Europe", "Latin America", "Remote"];
+const TYPES = ["All", "volunteer", "donation"];
+const HOURS = ["Any", "< 10h", "10–50h", "> 50h"];
 
 export default function Volunteering() {
   const [search, setSearch] = useState("");
   const [cause, setCause] = useState("All");
   const [location, setLocation] = useState("All Locations");
+  const [type, setType] = useState("All");
+  const [hours, setHours] = useState("Any");
 
   const { data: activities = [], isLoading } = useQuery({
     queryKey: ["all-activities"],

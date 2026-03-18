@@ -8,6 +8,7 @@ const links = [
   { label: "Campaigns", to: "/Campaigns" },
   { label: "Volunteer", to: "/Volunteering" },
   { label: "NGOs", to: "/NGODirectory" },
+  { label: "Feed", to: "/SocialFeed" },
   { label: "My Profile", to: "/ImpactProfile" },
 ];
 
