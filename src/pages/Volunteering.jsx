@@ -33,7 +33,13 @@ export default function Volunteering() {
     const matchSearch = !search || a.title?.toLowerCase().includes(search.toLowerCase()) || a.description?.toLowerCase().includes(search.toLowerCase());
     const matchCause = cause === "All" || a.cause?.toLowerCase().includes(cause.toLowerCase());
     const matchLoc = location === "All Locations" || a.description?.toLowerCase().includes(location.toLowerCase()) || ngoMap[a.ngo_id]?.description?.toLowerCase().includes(location.toLowerCase());
-    return matchSearch && matchCause && matchLoc;
+    const matchType = type === "All" || a.type === type;
+    const matchHours = hours === "Any" || (
+      hours === "< 10h" ? (a.target_hours || 0) < 10 :
+      hours === "10–50h" ? (a.target_hours || 0) >= 10 && (a.target_hours || 0) <= 50 :
+      hours === "> 50h" ? (a.target_hours || 0) > 50 : true
+    );
+    return matchSearch && matchCause && matchLoc && matchType && matchHours;
   });
 
   return (
