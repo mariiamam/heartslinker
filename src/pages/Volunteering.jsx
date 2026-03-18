@@ -89,6 +89,28 @@ export default function Volunteering() {
               ))}
             </div>
           </div>
+          <div>
+            <p className="text-xs font-semibold text-muted-foreground mb-2 uppercase tracking-wide">Type</p>
+            <div className="flex flex-wrap gap-1.5">
+              {TYPES.map(t => (
+                <button key={t} onClick={() => setType(t)}
+                  className={`text-xs px-3 py-1 rounded-full border font-medium capitalize transition-colors ${type === t ? "bg-primary text-white border-primary" : "bg-white text-muted-foreground border-border hover:border-primary"}`}>
+                  {t}
+                </button>
+              ))}
+            </div>
+          </div>
+          <div>
+            <p className="text-xs font-semibold text-muted-foreground mb-2 uppercase tracking-wide">Hours Target</p>
+            <div className="flex flex-wrap gap-1.5">
+              {HOURS.map(h => (
+                <button key={h} onClick={() => setHours(h)}
+                  className={`text-xs px-3 py-1 rounded-full border font-medium transition-colors ${hours === h ? "bg-green-500 text-white border-green-500" : "bg-white text-muted-foreground border-border hover:border-green-400"}`}>
+                  {h}
+                </button>
+              ))}
+            </div>
+          </div>
         </div>
 
         {isLoading ? (
