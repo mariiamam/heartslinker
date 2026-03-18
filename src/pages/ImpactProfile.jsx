@@ -62,6 +62,11 @@ export default function ImpactProfile() {
   const profile = profiles[0] || null;
   const unread = notifications.filter(n => !n.is_read).length;
 
+  const handleRightClick = (e) => {
+    e.preventDefault();
+    setContextMenu({ x: e.clientX, y: e.clientY });
+  };
+
   // Public changes: activities marked visible
   const publicActivities = activities.filter(a => a.is_visible !== false);
 
