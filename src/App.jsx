@@ -14,6 +14,7 @@ import Volunteering from "./pages/Volunteering";
 import NGODirectory from "./pages/NGODirectory";
 import MyUpdates from "./pages/MyUpdates";
 import MyCampaigns from "./pages/MyCampaigns";
+import Settings from "./pages/Settings";
 
 const AuthenticatedApp = () => {
   const { isLoadingAuth, isLoadingPublicSettings, authError, navigateToLogin } = useAuth();

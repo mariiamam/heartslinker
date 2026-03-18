@@ -3,30 +3,20 @@ import { base44 } from "@/api/base44Client";
 import { useQuery } from "@tanstack/react-query";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import ProfileHeader from "@/components/profile/ProfileHeader";
-import ImpactStatsCreative from "@/components/profile/ImpactStatsCreative";
+import ImpactStatsIcons from "@/components/profile/ImpactStatsIcons";
 import BadgesSection from "@/components/profile/BadgesSection";
-import ActivityTimeline from "@/components/profile/ActivityTimeline";
 import TestimonialsSection from "@/components/profile/TestimonialsSection";
 import SkillsSection from "@/components/profile/SkillsSection";
-import MyStorySection from "@/components/profile/MyStorySection";
 import ProfilePostsSection from "@/components/profile/ProfilePostsSection";
 import Navbar from "@/components/layout/Navbar";
-import { Zap, Bell, Briefcase } from "lucide-react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
+import { Settings } from "lucide-react";
 
 export default function ImpactProfile() {
   const [user, setUser] = useState(null);
-  const [contextMenu, setContextMenu] = useState(null);
-  const navigate = useNavigate();
 
   useEffect(() => {
     base44.auth.me().then(setUser).catch(() => {});
-  }, []);
-
-  useEffect(() => {
-    const close = () => setContextMenu(null);
-    window.addEventListener("click", close);
-    return () => window.removeEventListener("click", close);
   }, []);
 
   const { data: profiles = [] } = useQuery({
@@ -53,21 +43,7 @@ export default function ImpactProfile() {
     enabled: !!user?.email,
   });
 
-  const { data: notifications = [] } = useQuery({
-    queryKey: ["notifications", user?.email],
-    queryFn: () => base44.entities.Notification.filter({ user_email: user?.email }, "-created_date", 50),
-    enabled: !!user?.email,
-  });
-
   const profile = profiles[0] || null;
-  const unread = notifications.filter(n => !n.is_read).length;
-
-  const handleRightClick = (e) => {
-    e.preventDefault();
-    setContextMenu({ x: e.clientX, y: e.clientY });
-  };
-
-  // Public changes: activities marked visible
   const publicActivities = activities.filter(a => a.is_visible !== false);
 
   if (!user) return (
@@ -81,53 +57,36 @@ export default function ImpactProfile() {
       <Navbar />
 
       <div className="max-w-4xl mx-auto pb-16">
-        {/* Right-click context menu */}
-        {contextMenu && (
-          <div
-            className="fixed z-50 bg-white border border-border rounded-xl shadow-lg py-1.5 min-w-48"
-            style={{ top: contextMenu.y, left: contextMenu.x }}
-            onClick={e => e.stopPropagation()}
+        {/* Header */}
+        <ProfileHeader profile={profile} user={user} />
+
+        {/* Stats icons + Settings icon row */}
+        <div className="px-6 md:px-10 mt-5 flex items-center justify-between">
+          <ImpactStatsIcons profile={profile} activityCount={activities.length} />
+          <Link
+            to="/Settings"
+            className="p-2.5 rounded-2xl bg-muted border border-border hover:bg-secondary transition-colors text-muted-foreground hover:text-foreground"
+            title="Settings"
           >
-            <button
-              onClick={() => { navigate("/MyUpdates"); setContextMenu(null); }}
-              className="w-full flex items-center gap-3 px-4 py-2.5 text-sm hover:bg-muted/50 transition-colors text-left"
-            >
-              <Bell className="w-4 h-4 text-primary" />
-              <span>My Updates</span>
-              {unread > 0 && <span className="ml-auto bg-primary text-white text-xs rounded-full px-1.5 py-0.5 font-bold">{unread}</span>}
-            </button>
-            <button
-              onClick={() => { navigate("/MyCampaigns"); setContextMenu(null); }}
-              className="w-full flex items-center gap-3 px-4 py-2.5 text-sm hover:bg-muted/50 transition-colors text-left"
-            >
-              <Briefcase className="w-4 h-4 text-primary" />
-              <span>My Campaigns & Activities</span>
-            </button>
+            <Settings className="w-5 h-5" />
+          </Link>
+        </div>
+
+        {/* My Story — read only */}
+        {profile?.bio && (
+          <div className="px-6 md:px-10 mt-5">
+            <div className="bg-white rounded-2xl border border-border p-5 shadow-sm">
+              <h3 className="font-bold text-foreground mb-2">My Story</h3>
+              <p className="text-sm text-foreground/80 leading-relaxed whitespace-pre-wrap">{profile.bio}</p>
+            </div>
           </div>
         )}
 
-        {/* Header */}
-        <div onContextMenu={handleRightClick}>
-          <ProfileHeader profile={profile} user={user} />
-        </div>
-
-        {/* Stats — creative */}
-        <div className="px-6 md:px-10 mt-6">
-          <ImpactStatsCreative profile={profile} activityCount={activities.length} />
-        </div>
-
-        {/* My Story */}
-        <div className="px-6 md:px-10 mt-5">
-          <MyStorySection profile={profile} isOwner={true} />
-        </div>
-
-        {/* Public changes (visible activities) */}
-        <div className="px-6 md:px-10 mt-5">
-          <div className="bg-white rounded-2xl border border-border p-5 shadow-sm">
-            <h3 className="font-bold text-foreground mb-4">Changes — What I've Done</h3>
-            {publicActivities.length === 0 ? (
-              <p className="text-sm text-muted-foreground italic">No shared activities yet.</p>
-            ) : (
+        {/* Public activities */}
+        {publicActivities.length > 0 && (
+          <div className="px-6 md:px-10 mt-5">
+            <div className="bg-white rounded-2xl border border-border p-5 shadow-sm">
+              <h3 className="font-bold text-foreground mb-4">Changes — What I've Done</h3>
               <div className="space-y-3">
                 {publicActivities.map(act => (
                   <div key={act.id} className="flex gap-3 items-start border-b border-border/50 pb-3 last:border-0 last:pb-0">
@@ -146,16 +105,16 @@ export default function ImpactProfile() {
                   </div>
                 ))}
               </div>
-            )}
+            </div>
           </div>
-        </div>
+        )}
 
-        {/* Posts */}
+        {/* Posts — Instagram-style feed */}
         <div className="px-6 md:px-10 mt-5">
           <ProfilePostsSection posts={posts} userEmail={user.email} isOwner={true} />
         </div>
 
-        {/* Extra Tabs */}
+        {/* Badges / Skills / Testimonials tabs */}
         <div className="px-6 md:px-10 mt-8">
           <Tabs defaultValue="badges">
             <TabsList className="bg-secondary rounded-xl p-1 gap-1">
