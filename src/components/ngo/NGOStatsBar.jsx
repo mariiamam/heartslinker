@@ -21,7 +21,7 @@ export default function NGOStatsBar({ activities, hourEntries }) {
   return (
     <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
       <Stat icon={Users} value={uniqueVolunteers} label="Total Volunteers" color="bg-primary/10 text-primary" />
-      <Stat icon={Activity} value={activeActivities} label="Active Activities" color="bg-amber-100 text-amber-600" />
+      <Stat icon={Zap} value={activeActivities} label="Active Activities" color="bg-amber-100 text-amber-600" />
       <Stat icon={Clock} value={`${totalApprovedHours}h`} label="Approved Hours" color="bg-orange-100 text-orange-500" />
       <Stat icon={CheckCircle} value={pendingHours} label="Pending Approvals" color="bg-rose-100 text-rose-500" />
     </div>
