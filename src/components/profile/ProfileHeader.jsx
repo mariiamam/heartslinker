@@ -54,9 +54,6 @@ export default function ProfileHeader({ profile, user }) {
                 )}
               </div>
             </div>
-            {profile?.tagline && (
-              <p className="text-sm text-muted-foreground mt-1 italic">{profile.tagline.slice(0, 50)}</p>
-            )}
             <div className="flex flex-wrap items-center gap-3 mt-1 text-sm text-muted-foreground">
               {profile?.location && (
                 <span className="flex items-center gap-1">
