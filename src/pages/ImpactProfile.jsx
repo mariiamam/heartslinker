@@ -9,12 +9,15 @@ import TestimonialsSection from "@/components/profile/TestimonialsSection";
 import SkillsSection from "@/components/profile/SkillsSection";
 import ProfilePostsSection from "@/components/profile/ProfilePostsSection";
 import ImpactAnalytics from "@/components/profile/ImpactAnalytics";
+import EditProfileForm from "@/components/profile/EditProfileForm";
+import UpdatesWindow from "@/components/profile/UpdatesWindow";
+import MyCampaignsWindow from "@/components/profile/MyCampaignsWindow";
+import QuickMenu from "@/components/profile/QuickMenu";
 import Navbar from "@/components/layout/Navbar";
-import { Link } from "react-router-dom";
-import { Settings } from "lucide-react";
 
 export default function ImpactProfile() {
   const [user, setUser] = useState(null);
+  const [activePanel, setActivePanel] = useState(null);
 
   useEffect(() => {
     base44.auth.me().then(setUser).catch(() => {});
@@ -50,6 +53,12 @@ export default function ImpactProfile() {
     enabled: !!user?.email,
   });
 
+  const { data: notifications = [] } = useQuery({
+    queryKey: ["notifications", user?.email],
+    queryFn: () => base44.entities.Notification.filter({ user_email: user?.email }),
+    enabled: !!user?.email,
+  });
+
   const profile = profiles[0] || null;
   const publicActivities = activities.filter(a => a.is_visible !== false);
 
@@ -67,17 +76,29 @@ export default function ImpactProfile() {
         {/* Header */}
         <ProfileHeader profile={profile} user={user} />
 
-        {/* Stats icons + Settings icon row */}
+        {/* Stats icons + Menu icon row */}
         <div className="px-6 md:px-10 mt-5 flex items-center justify-between">
           <ImpactStatsIcons profile={profile} activityCount={activities.length} />
-          <Link
-            to="/Settings"
-            className="p-2.5 rounded-2xl bg-muted border border-border hover:bg-secondary transition-colors text-muted-foreground hover:text-foreground"
-            title="Settings"
-          >
-            <Settings className="w-5 h-5" />
-          </Link>
+          <QuickMenu activePanel={activePanel} onSelect={setActivePanel} />
         </div>
+
+        {/* Side panels triggered by QuickMenu */}
+        {activePanel && (
+          <div className="px-6 md:px-10 mt-5">
+            {activePanel === "analytics" && (
+              <ImpactAnalytics profile={profile} activities={activities} hourEntries={hourEntries} />
+            )}
+            {activePanel === "updates" && (
+              <UpdatesWindow notifications={notifications} />
+            )}
+            {activePanel === "campaigns" && (
+              <MyCampaignsWindow activities={activities} userEmail={user.email} />
+            )}
+            {activePanel === "settings" && (
+              <EditProfileForm profile={profile} user={user} />
+            )}
+          </div>
+        )}
 
         {/* My Story — read only */}
         {profile?.bio && (
@@ -115,11 +136,6 @@ export default function ImpactProfile() {
             </div>
           </div>
         )}
-
-        {/* Impact Analytics */}
-        <div className="px-6 md:px-10 mt-5">
-          <ImpactAnalytics profile={profile} activities={activities} hourEntries={hourEntries} />
-        </div>
 
         {/* Posts — Instagram-style feed */}
         <div className="px-6 md:px-10 mt-5">
