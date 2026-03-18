@@ -1,13 +1,19 @@
 import { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery } from "@tanstack/react-query";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import ProfileHeader from "@/components/profile/ProfileHeader";
-import ImpactStats from "@/components/profile/ImpactStats";
+import ImpactStatsCreative from "@/components/profile/ImpactStatsCreative";
 import BadgesSection from "@/components/profile/BadgesSection";
 import ActivityTimeline from "@/components/profile/ActivityTimeline";
 import TestimonialsSection from "@/components/profile/TestimonialsSection";
 import SkillsSection from "@/components/profile/SkillsSection";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import MyStorySection from "@/components/profile/MyStorySection";
+import ProfilePostsSection from "@/components/profile/ProfilePostsSection";
+import UpdatesWindow from "@/components/profile/UpdatesWindow";
+import MyCampaignsWindow from "@/components/profile/MyCampaignsWindow";
+import Navbar from "@/components/layout/Navbar";
+import { Zap, Bell } from "lucide-react";
 
 export default function ImpactProfile() {
   const [user, setUser] = useState(null);
@@ -23,8 +29,8 @@ export default function ImpactProfile() {
   });
 
   const { data: activities = [] } = useQuery({
-    queryKey: ["activities", user?.email],
-    queryFn: () => base44.entities.VolunteerActivity.filter({ user_email: user?.email }, "-date", 20),
+    queryKey: ["my-activities", user?.email],
+    queryFn: () => base44.entities.Activity.filter({ user_email: user?.email }),
     enabled: !!user?.email,
   });
 
@@ -34,7 +40,23 @@ export default function ImpactProfile() {
     enabled: !!user?.email,
   });
 
+  const { data: posts = [] } = useQuery({
+    queryKey: ["profile-posts", user?.email],
+    queryFn: () => base44.entities.ProfilePost.filter({ user_email: user?.email }),
+    enabled: !!user?.email,
+  });
+
+  const { data: notifications = [] } = useQuery({
+    queryKey: ["notifications", user?.email],
+    queryFn: () => base44.entities.Notification.filter({ user_email: user?.email }, "-created_date", 50),
+    enabled: !!user?.email,
+  });
+
   const profile = profiles[0] || null;
+  const unread = notifications.filter(n => !n.is_read).length;
+
+  // Public changes: activities marked visible
+  const publicActivities = activities.filter(a => a.is_visible !== false);
 
   if (!user) return (
     <div className="min-h-screen bg-background flex items-center justify-center">
@@ -44,66 +66,104 @@ export default function ImpactProfile() {
 
   return (
     <div className="min-h-screen bg-background font-inter">
-      {/* Top nav bar */}
-      <div className="h-1.5 w-full bg-gradient-to-r from-primary via-accent to-rose-400" />
+      <Navbar />
 
       <div className="max-w-4xl mx-auto pb-16">
         {/* Header */}
         <ProfileHeader profile={profile} user={user} />
 
-        {/* Stats */}
-        <div className="px-6 md:px-10 mt-8">
-          <ImpactStats profile={profile} activityCount={activities.length} />
+        {/* "Changer" badge — private, shown under name */}
+        <div className="px-6 md:px-10 mt-3">
+          <span className="inline-flex items-center gap-1.5 text-xs font-bold text-white bg-gradient-to-r from-primary to-accent px-3 py-1 rounded-full shadow-sm">
+            <Zap className="w-3 h-3" /> Changer
+          </span>
         </div>
 
-        {/* Tabs */}
+        {/* Stats — creative */}
+        <div className="px-6 md:px-10 mt-6">
+          <ImpactStatsCreative profile={profile} activityCount={activities.length} />
+        </div>
+
+        {/* My Story */}
+        <div className="px-6 md:px-10 mt-5">
+          <MyStorySection profile={profile} isOwner={true} />
+        </div>
+
+        {/* Public changes (visible activities) */}
+        <div className="px-6 md:px-10 mt-5">
+          <div className="bg-white rounded-2xl border border-border p-5 shadow-sm">
+            <h3 className="font-bold text-foreground mb-4">Changes — What I've Done</h3>
+            {publicActivities.length === 0 ? (
+              <p className="text-sm text-muted-foreground italic">No shared activities yet.</p>
+            ) : (
+              <div className="space-y-3">
+                {publicActivities.map(act => (
+                  <div key={act.id} className="flex gap-3 items-start border-b border-border/50 pb-3 last:border-0 last:pb-0">
+                    <div className="w-8 h-8 rounded-xl bg-primary/10 flex items-center justify-center flex-shrink-0 text-sm">
+                      {act.type === "donation" ? "💰" : "🤝"}
+                    </div>
+                    <div>
+                      <p className="text-sm font-semibold text-foreground">{act.title}</p>
+                      <p className="text-xs text-muted-foreground">{act.ngo_name}{act.cause ? ` · ${act.cause}` : ""}</p>
+                      {act.type === "donation" ? (
+                        <p className="text-xs text-muted-foreground mt-0.5">Donated to {act.ngo_name}</p>
+                      ) : act.start_date && (
+                        <p className="text-xs text-muted-foreground mt-0.5">Since {act.start_date}</p>
+                      )}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Posts */}
+        <div className="px-6 md:px-10 mt-5">
+          <ProfilePostsSection posts={posts} userEmail={user.email} isOwner={true} />
+        </div>
+
+        {/* Private section — Updates + Campaigns in a grid */}
+        <div className="px-6 md:px-10 mt-5 grid md:grid-cols-2 gap-5">
+          {/* Updates Window */}
+          <div>
+            <div className="flex items-center gap-2 mb-2">
+              <Bell className="w-4 h-4 text-primary" />
+              <h3 className="font-semibold text-sm text-foreground">Updates</h3>
+              {unread > 0 && <span className="bg-primary text-white text-xs px-1.5 py-0.5 rounded-full font-bold">{unread}</span>}
+            </div>
+            <UpdatesWindow notifications={notifications} />
+          </div>
+
+          {/* My Campaigns */}
+          <div>
+            <MyCampaignsWindow activities={activities} userEmail={user.email} />
+          </div>
+        </div>
+
+        {/* Extra Tabs */}
         <div className="px-6 md:px-10 mt-8">
-          <Tabs defaultValue="timeline">
-            <TabsList className="bg-secondary rounded-xl p-1 w-full sm:w-auto gap-1">
-              <TabsTrigger value="timeline" className="rounded-lg text-sm data-[state=active]:bg-white data-[state=active]:shadow-sm">
-                Timeline
-              </TabsTrigger>
-              <TabsTrigger value="badges" className="rounded-lg text-sm data-[state=active]:bg-white data-[state=active]:shadow-sm">
-                Badges
-              </TabsTrigger>
-              <TabsTrigger value="skills" className="rounded-lg text-sm data-[state=active]:bg-white data-[state=active]:shadow-sm">
-                Skills
-              </TabsTrigger>
-              <TabsTrigger value="testimonials" className="rounded-lg text-sm data-[state=active]:bg-white data-[state=active]:shadow-sm">
-                Testimonials
-              </TabsTrigger>
+          <Tabs defaultValue="badges">
+            <TabsList className="bg-secondary rounded-xl p-1 gap-1">
+              <TabsTrigger value="badges" className="rounded-lg text-sm data-[state=active]:bg-white data-[state=active]:shadow-sm">Badges</TabsTrigger>
+              <TabsTrigger value="skills" className="rounded-lg text-sm data-[state=active]:bg-white data-[state=active]:shadow-sm">Skills</TabsTrigger>
+              <TabsTrigger value="testimonials" className="rounded-lg text-sm data-[state=active]:bg-white data-[state=active]:shadow-sm">Testimonials</TabsTrigger>
             </TabsList>
-
-            <div className="mt-6">
-              <TabsContent value="timeline">
-                <SectionCard title="Activity Timeline" subtitle="Your impact journey, step by step">
-                  <ActivityTimeline activities={activities} />
-                </SectionCard>
-              </TabsContent>
-
+            <div className="mt-4">
               <TabsContent value="badges">
-                <SectionCard title="Impact Badges" subtitle="Recognition for your humanitarian contributions">
-                  <BadgesSection badges={profile?.badges} />
-                </SectionCard>
+                <SectionCard title="Impact Badges"><BadgesSection badges={profile?.badges} /></SectionCard>
               </TabsContent>
-
               <TabsContent value="skills">
-                <SectionCard title="Volunteering Skills" subtitle="What you bring to the mission">
-                  <SkillsSection skills={profile?.skills} />
-                </SectionCard>
+                <SectionCard title="Volunteering Skills"><SkillsSection skills={profile?.skills} /></SectionCard>
               </TabsContent>
-
               <TabsContent value="testimonials">
-                <SectionCard title="Testimonials" subtitle="Words from NGOs, friends, and fellow volunteers">
-                  <TestimonialsSection testimonials={testimonials} />
-                </SectionCard>
+                <SectionCard title="Testimonials"><TestimonialsSection testimonials={testimonials} /></SectionCard>
               </TabsContent>
             </div>
           </Tabs>
         </div>
       </div>
 
-      {/* Footer quote */}
       <div className="bg-gradient-to-r from-primary/5 via-accent/10 to-rose-100/50 border-t border-border py-8 text-center px-4">
         <p className="text-sm text-muted-foreground italic max-w-md mx-auto">
           "A single act of kindness can change a life — and that's all the legacy I need."
@@ -114,13 +174,10 @@ export default function ImpactProfile() {
   );
 }
 
-function SectionCard({ title, subtitle, children }) {
+function SectionCard({ title, children }) {
   return (
     <div className="bg-white rounded-2xl border border-border p-6 shadow-sm">
-      <div className="mb-5">
-        <h3 className="text-base font-semibold text-foreground">{title}</h3>
-        {subtitle && <p className="text-xs text-muted-foreground mt-0.5">{subtitle}</p>}
-      </div>
+      <h3 className="text-base font-semibold text-foreground mb-4">{title}</h3>
       {children}
     </div>
   );

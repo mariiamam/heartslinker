@@ -1,6 +1,5 @@
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { MapPin, Globe, BadgeCheck, Heart, Share2 } from "lucide-react";
+import { MapPin, Globe, BadgeCheck, Heart, Share2, Zap } from "lucide-react";
 
 const CAUSE_COLORS = {
   "orphans": "bg-orange-100 text-orange-700",
