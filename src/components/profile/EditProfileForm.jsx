@@ -8,6 +8,7 @@ import { Check } from "lucide-react";
 export default function EditProfileForm({ profile, user }) {
   const qc = useQueryClient();
   const [form, setForm] = useState({
+    tagline: profile?.tagline || "",
     bio: profile?.bio || "",
     location: profile?.location || "",
     languages: profile?.languages?.join(", ") || "",
