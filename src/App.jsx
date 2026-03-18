@@ -8,6 +8,10 @@ import UserNotRegisteredError from '@/components/UserNotRegisteredError';
 // Add page imports here
 import ImpactProfile from "./pages/ImpactProfile";
 import NGODashboard from "./pages/NGODashboard";
+import Landing from "./pages/Landing";
+import Campaigns from "./pages/Campaigns";
+import Volunteering from "./pages/Volunteering";
+import NGODirectory from "./pages/NGODirectory";
 
 const AuthenticatedApp = () => {
   const { isLoadingAuth, isLoadingPublicSettings, authError, navigateToLogin } = useAuth();
