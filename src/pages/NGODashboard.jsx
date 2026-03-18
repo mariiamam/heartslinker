@@ -1,12 +1,14 @@
 import { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import VolunteersList from "@/components/ngo/VolunteersList";
 import ActivitiesPanel from "@/components/ngo/ActivitiesPanel";
 import HoursApproval from "@/components/ngo/HoursApproval";
 import NGOStatsBar from "@/components/ngo/NGOStatsBar";
-import { Building2 } from "lucide-react";
+import NGOHero from "@/components/ngo/NGOHero";
+import CampaignsSection from "@/components/ngo/CampaignsSection";
+import NGOPostsSection from "@/components/ngo/NGOPostsSection";
 
 export default function NGODashboard() {
   const [user, setUser] = useState(null);
@@ -40,6 +42,18 @@ export default function NGODashboard() {
     enabled: !!activities.length,
   });
 
+  const { data: campaigns = [] } = useQuery({
+    queryKey: ["campaigns", ngo?.id],
+    queryFn: () => base44.entities.Campaign.filter({ ngo_id: ngo?.id }),
+    enabled: !!ngo?.id,
+  });
+
+  const { data: posts = [] } = useQuery({
+    queryKey: ["ngo-posts", ngo?.id],
+    queryFn: () => base44.entities.NGOPost.filter({ ngo_id: ngo?.id }),
+    enabled: !!ngo?.id,
+  });
+
   if (!user) return (
     <div className="min-h-screen bg-background flex items-center justify-center">
       <div className="w-8 h-8 border-4 border-primary/30 border-t-primary rounded-full animate-spin" />
@@ -50,52 +64,54 @@ export default function NGODashboard() {
     <div className="min-h-screen bg-background font-inter">
       <div className="h-1.5 w-full bg-gradient-to-r from-primary via-accent to-rose-400" />
 
-      {/* Header */}
-      <div className="bg-white border-b border-border px-6 md:px-10 py-5">
-        <div className="max-w-6xl mx-auto flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center">
-            <Building2 className="w-5 h-5 text-primary" />
-          </div>
-          <div>
-            <h1 className="text-xl font-bold text-foreground">{ngo?.name || "NGO Dashboard"}</h1>
-            <p className="text-xs text-muted-foreground">Manage volunteers, activities & hours</p>
-          </div>
-        </div>
-      </div>
+      <div className="max-w-4xl mx-auto px-4 md:px-8 py-8 space-y-8">
 
-      <div className="max-w-6xl mx-auto px-6 md:px-10 py-8 space-y-6">
+        {/* 1. Hero: Cover + Name + Mission */}
+        <NGOHero ngo={ngo} />
+
+        {/* 2. Stats */}
         <NGOStatsBar activities={activities} hourEntries={hourEntries} />
 
-        <Tabs defaultValue="volunteers">
-          <TabsList className="bg-secondary rounded-xl p-1 gap-1">
-            <TabsTrigger value="volunteers" className="rounded-lg text-sm data-[state=active]:bg-white data-[state=active]:shadow-sm">
-              Volunteers
-            </TabsTrigger>
-            <TabsTrigger value="activities" className="rounded-lg text-sm data-[state=active]:bg-white data-[state=active]:shadow-sm">
-              Activities
-            </TabsTrigger>
-            <TabsTrigger value="hours" className="rounded-lg text-sm data-[state=active]:bg-white data-[state=active]:shadow-sm">
-              Hours Approval
-              {hourEntries.filter(h => h.status === "pending").length > 0 && (
-                <span className="ml-1.5 bg-primary text-primary-foreground text-xs rounded-full px-1.5 py-0.5">
-                  {hourEntries.filter(h => h.status === "pending").length}
-                </span>
-              )}
-            </TabsTrigger>
-          </TabsList>
+        {/* 3. Active Campaigns */}
+        <CampaignsSection campaigns={campaigns} ngoId={ngo?.id} />
 
-          <div className="mt-6">
-            <TabsContent value="volunteers">
-              <VolunteersList activities={activities} hourEntries={hourEntries} />
-            </TabsContent>
-            <TabsContent value="activities">
-              <ActivitiesPanel activities={activities} ngo={ngo} />
-            </TabsContent>
-            <TabsContent value="hours">
-              <HoursApproval hourEntries={hourEntries} activities={activities} />
-            </TabsContent>
-          </div>
-        </Tabs>
+        {/* 4. Posts */}
+        <NGOPostsSection posts={posts} ngoId={ngo?.id} ngoName={ngo?.name} />
+
+        {/* 5. Management tabs */}
+        <div className="pt-4 border-t border-border">
+          <h2 className="text-lg font-bold text-foreground mb-4">Management</h2>
+          <Tabs defaultValue="volunteers">
+            <TabsList className="bg-secondary rounded-xl p-1 gap-1">
+              <TabsTrigger value="volunteers" className="rounded-lg text-sm data-[state=active]:bg-white data-[state=active]:shadow-sm">
+                Volunteers
+              </TabsTrigger>
+              <TabsTrigger value="activities" className="rounded-lg text-sm data-[state=active]:bg-white data-[state=active]:shadow-sm">
+                Activities
+              </TabsTrigger>
+              <TabsTrigger value="hours" className="rounded-lg text-sm data-[state=active]:bg-white data-[state=active]:shadow-sm">
+                Hours Approval
+                {hourEntries.filter(h => h.status === "pending").length > 0 && (
+                  <span className="ml-1.5 bg-primary text-primary-foreground text-xs rounded-full px-1.5 py-0.5">
+                    {hourEntries.filter(h => h.status === "pending").length}
+                  </span>
+                )}
+              </TabsTrigger>
+            </TabsList>
+            <div className="mt-6">
+              <TabsContent value="volunteers">
+                <VolunteersList activities={activities} hourEntries={hourEntries} />
+              </TabsContent>
+              <TabsContent value="activities">
+                <ActivitiesPanel activities={activities} ngo={ngo} />
+              </TabsContent>
+              <TabsContent value="hours">
+                <HoursApproval hourEntries={hourEntries} activities={activities} />
+              </TabsContent>
+            </div>
+          </Tabs>
+        </div>
+
       </div>
     </div>
   );
