@@ -1,13 +1,19 @@
-import { useState } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useState, useEffect } from "react";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { base44 } from "@/api/base44Client";
 import Navbar from "@/components/layout/Navbar";
-import { Search, BadgeCheck, Globe, MapPin, Users, DollarSign, ChevronDown, ChevronUp } from "lucide-react";
+import { Search, BadgeCheck, Globe, MapPin, Users, DollarSign, ChevronDown, ChevronUp, Bell, BellOff } from "lucide-react";
 import { Input } from "@/components/ui/input";
 
 export default function NGODirectory() {
   const [search, setSearch] = useState("");
   const [expandedId, setExpandedId] = useState(null);
+  const [user, setUser] = useState(null);
+  const qc = useQueryClient();
+
+  useEffect(() => {
+    base44.auth.me().then(setUser).catch(() => {});
+  }, []);
 
   const { data: ngos = [], isLoading } = useQuery({
     queryKey: ["all-ngos"],
@@ -23,6 +29,24 @@ export default function NGODirectory() {
     queryKey: ["all-activities"],
     queryFn: () => base44.entities.Activity.list(),
   });
+
+  const { data: follows = [] } = useQuery({
+    queryKey: ["ngo-follows", user?.email],
+    queryFn: () => base44.entities.NGOFollow.filter({ user_email: user?.email }),
+    enabled: !!user?.email,
+  });
+
+  const followMutation = useMutation({
+    mutationFn: (ngo_id) => base44.entities.NGOFollow.create({ user_email: user.email, ngo_id }),
+    onSuccess: () => qc.invalidateQueries(["ngo-follows"]),
+  });
+
+  const unfollowMutation = useMutation({
+    mutationFn: (id) => base44.entities.NGOFollow.delete(id),
+    onSuccess: () => qc.invalidateQueries(["ngo-follows"]),
+  });
+
+  const followedIds = new Set(follows.map(f => f.ngo_id));
 
   const filtered = ngos.filter(n =>
     !search ||
