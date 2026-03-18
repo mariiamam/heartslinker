@@ -38,6 +38,7 @@ const AuthenticatedApp = () => {
       {/* Add your page Route elements here */}
       <Route path="/" element={<Navigate to="/ImpactProfile" replace />} />
       <Route path="/ImpactProfile" element={<ImpactProfile />} />
+      <Route path="/NGODashboard" element={<NGODashboard />} />
       <Route path="*" element={<PageNotFound />} />
     </Routes>
   );
