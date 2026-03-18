@@ -25,20 +25,20 @@ export default function ProfileHeader({ profile, user }) {
       </div>
 
       {/* Avatar + Info row */}
-      <div className="px-6 md:px-10 mt-3">
-        <div className="flex flex-col sm:flex-row sm:items-center gap-4 relative z-10">
-          {/* Avatar — small, fully below cover */}
-          <div className="relative w-16 h-16 rounded-xl border-2 border-white shadow-lg overflow-hidden bg-secondary flex-shrink-0">
+      <div className="px-6 md:px-10">
+        <div className="flex flex-col sm:flex-row sm:items-end gap-4 -mt-16 relative z-10">
+          {/* Avatar */}
+          <div className="relative w-28 h-28 rounded-2xl border-4 border-white shadow-xl overflow-hidden bg-secondary flex-shrink-0">
             <img src={avatarUrl} alt={user?.full_name} className="w-full h-full object-cover" />
             {profile?.is_verified && (
-              <div className="absolute bottom-0.5 right-0.5 bg-primary rounded-full p-0.5">
-                <BadgeCheck className="w-3 h-3 text-white" />
+              <div className="absolute bottom-1 right-1 bg-primary rounded-full p-0.5">
+                <BadgeCheck className="w-4 h-4 text-white" />
               </div>
             )}
           </div>
 
           {/* Name & meta */}
-          <div className="flex-1">
+          <div className="flex-1 pb-1">
             <div className="flex flex-col gap-1">
               <h1 className="text-2xl font-bold text-foreground font-inter">
                 {user?.full_name || "Anonymous Hero"}
@@ -69,7 +69,7 @@ export default function ProfileHeader({ profile, user }) {
           </div>
 
           {/* Actions */}
-          <div className="flex gap-2">
+          <div className="flex gap-2 pb-1">
             <Button variant="outline" size="sm" className="gap-1.5 rounded-xl border-border">
               <Share2 className="w-4 h-4" /> Share
             </Button>
