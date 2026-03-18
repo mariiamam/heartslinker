@@ -26,8 +26,8 @@ export default function ProfileHeader({ profile, user }) {
 
       {/* Avatar + Info row */}
       <div className="px-6 md:px-10">
-        <div className="flex flex-col sm:flex-row sm:items-end gap-4 -mt-16 relative z-10">
-          {/* Avatar */}
+        {/* Avatar floats up over cover */}
+        <div className="flex items-end justify-between -mt-16 relative z-10">
           <div className="relative w-28 h-28 rounded-2xl border-4 border-white shadow-xl overflow-hidden bg-secondary flex-shrink-0">
             <img src={avatarUrl} alt={user?.full_name} className="w-full h-full object-cover" />
             {profile?.is_verified && (
@@ -36,39 +36,7 @@ export default function ProfileHeader({ profile, user }) {
               </div>
             )}
           </div>
-
-          {/* Name & meta */}
-          <div className="flex-1 pb-1">
-            <div className="flex flex-col gap-1">
-              <h1 className="text-2xl font-bold text-foreground font-inter">
-                {user?.full_name || "Anonymous Hero"}
-              </h1>
-              <div className="flex flex-wrap items-center gap-2">
-                <span className="inline-flex items-center gap-1 text-xs font-bold text-white bg-gradient-to-r from-primary to-accent px-2.5 py-0.5 rounded-full shadow-sm">
-                  <Zap className="w-3 h-3" /> Changer
-                </span>
-                {profile?.is_verified && (
-                  <span className="inline-flex items-center gap-1 text-xs font-medium text-primary bg-primary/10 px-2 py-0.5 rounded-full w-fit">
-                    <BadgeCheck className="w-3 h-3" /> Verified
-                  </span>
-                )}
-              </div>
-            </div>
-            <div className="flex flex-wrap items-center gap-3 mt-1 text-sm text-muted-foreground">
-              {profile?.location && (
-                <span className="flex items-center gap-1">
-                  <MapPin className="w-3.5 h-3.5" /> {profile.location}
-                </span>
-              )}
-              {profile?.languages?.length > 0 && (
-                <span className="flex items-center gap-1">
-                  <Globe className="w-3.5 h-3.5" /> {profile.languages.join(", ")}
-                </span>
-              )}
-            </div>
-          </div>
-
-          {/* Actions */}
+          {/* Actions aligned to right */}
           <div className="flex gap-2 pb-1">
             <Button variant="outline" size="sm" className="gap-1.5 rounded-xl border-border">
               <Share2 className="w-4 h-4" /> Share
@@ -76,6 +44,37 @@ export default function ProfileHeader({ profile, user }) {
             <Button size="sm" className="gap-1.5 rounded-xl bg-primary hover:bg-primary/90 text-primary-foreground">
               <Heart className="w-4 h-4" /> Follow
             </Button>
+          </div>
+        </div>
+
+        {/* Name & meta — fully below the avatar */}
+        <div className="mt-3">
+          <div className="flex flex-col gap-0.5">
+            <h1 className="text-2xl font-bold text-foreground font-inter">
+              {user?.full_name || "Anonymous Hero"}
+            </h1>
+            <div className="flex flex-wrap items-center gap-2">
+              <span className="inline-flex items-center gap-1 text-xs font-bold text-white bg-gradient-to-r from-primary to-accent px-2.5 py-0.5 rounded-full shadow-sm">
+                <Zap className="w-3 h-3" /> Changer
+              </span>
+              {profile?.is_verified && (
+                <span className="inline-flex items-center gap-1 text-xs font-medium text-primary bg-primary/10 px-2 py-0.5 rounded-full w-fit">
+                  <BadgeCheck className="w-3 h-3" /> Verified
+                </span>
+              )}
+            </div>
+          </div>
+          <div className="flex flex-wrap items-center gap-3 mt-1 text-sm text-muted-foreground">
+            {profile?.location && (
+              <span className="flex items-center gap-1">
+                <MapPin className="w-3.5 h-3.5" /> {profile.location}
+              </span>
+            )}
+            {profile?.languages?.length > 0 && (
+              <span className="flex items-center gap-1">
+                <Globe className="w-3.5 h-3.5" /> {profile.languages.join(", ")}
+              </span>
+            )}
           </div>
         </div>
 
