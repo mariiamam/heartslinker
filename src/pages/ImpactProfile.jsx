@@ -111,13 +111,6 @@ export default function ImpactProfile() {
           <ProfileHeader profile={profile} user={user} />
         </div>
 
-        {/* "Changer" badge — private, shown under name */}
-        <div className="px-6 md:px-10 mt-3">
-          <span className="inline-flex items-center gap-1.5 text-xs font-bold text-white bg-gradient-to-r from-primary to-accent px-3 py-1 rounded-full shadow-sm">
-            <Zap className="w-3 h-3" /> Changer
-          </span>
-        </div>
-
         {/* Stats — creative */}
         <div className="px-6 md:px-10 mt-6">
           <ImpactStatsCreative profile={profile} activityCount={activities.length} />
