@@ -38,6 +38,7 @@ export default function EditProfileForm({ profile, user }) {
   const handleSave = () => {
     mutation.mutate({
       ...form,
+      tagline: form.tagline.slice(0, 50),
       languages: form.languages ? form.languages.split(",").map(s => s.trim()).filter(Boolean) : [],
       causes: form.causes ? form.causes.split(",").map(s => s.trim()).filter(Boolean) : [],
       skills: form.skills ? form.skills.split(",").map(s => s.trim()).filter(Boolean) : [],
