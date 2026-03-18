@@ -22,12 +22,10 @@ export default function Landing() {
       <Navbar />
 
       {/* Hero */}
-      <section className="relative overflow-hidden">
-        <div className="absolute inset-0 -z-10">
-          <img src="https://images.unsplash.com/photo-1488521787991-ed7bbaae773c?w=1600&q=80" alt="" className="w-full h-full object-cover" />
-          <div className="absolute inset-0 bg-gradient-to-r from-black/70 via-black/50 to-transparent" />
-        </div>
-        <div className="max-w-6xl mx-auto px-6 py-28 md:py-40">
+      <section className="relative overflow-hidden min-h-[600px]" style={{background: "#1a0a00"}}>
+        <img src="https://images.unsplash.com/photo-1488521787991-ed7bbaae773c?w=1600&q=80" alt="" className="absolute inset-0 w-full h-full object-cover opacity-40" />
+        <div className="absolute inset-0 bg-gradient-to-b from-black/50 to-black/70" />
+        <div className="relative z-10 max-w-6xl mx-auto px-6 py-28 md:py-40">
           <div className="max-w-2xl">
             <span className="inline-flex items-center gap-1.5 bg-white/20 backdrop-blur text-white text-xs font-medium px-3 py-1.5 rounded-full mb-5">
               <Heart className="w-3.5 h-3.5 text-primary" /> The LinkedIn for Kindness
