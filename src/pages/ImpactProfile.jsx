@@ -16,9 +16,17 @@ import { Link, useNavigate } from "react-router-dom";
 
 export default function ImpactProfile() {
   const [user, setUser] = useState(null);
+  const [contextMenu, setContextMenu] = useState(null);
+  const navigate = useNavigate();
 
   useEffect(() => {
     base44.auth.me().then(setUser).catch(() => {});
+  }, []);
+
+  useEffect(() => {
+    const close = () => setContextMenu(null);
+    window.addEventListener("click", close);
+    return () => window.removeEventListener("click", close);
   }, []);
 
   const { data: profiles = [] } = useQuery({
