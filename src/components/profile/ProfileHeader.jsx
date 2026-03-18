@@ -26,7 +26,7 @@ export default function ProfileHeader({ profile, user }) {
 
       {/* Avatar + Info row */}
       <div className="px-6 md:px-10">
-        <div className="flex flex-col sm:flex-row sm:items-end gap-4 -mt-16 relative z-10">
+        <div className="flex flex-col sm:flex-row sm:items-end gap-4 -mt-12 relative z-10">
           {/* Avatar */}
           <div className="relative w-28 h-28 rounded-2xl border-4 border-white shadow-xl overflow-hidden bg-secondary flex-shrink-0">
             <img src={avatarUrl} alt={user?.full_name} className="w-full h-full object-cover" />
