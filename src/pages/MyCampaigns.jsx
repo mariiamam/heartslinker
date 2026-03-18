@@ -3,6 +3,7 @@ import { base44 } from "@/api/base44Client";
 import { useQuery } from "@tanstack/react-query";
 import Navbar from "@/components/layout/Navbar";
 import MyCampaignsWindow from "@/components/profile/MyCampaignsWindow";
+import ActivityFilters from "@/components/profile/ActivityFilters";
 import { Briefcase } from "lucide-react";
 import { Link } from "react-router-dom";
 

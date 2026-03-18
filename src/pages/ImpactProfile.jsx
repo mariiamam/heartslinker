@@ -8,6 +8,7 @@ import BadgesSection from "@/components/profile/BadgesSection";
 import TestimonialsSection from "@/components/profile/TestimonialsSection";
 import SkillsSection from "@/components/profile/SkillsSection";
 import ProfilePostsSection from "@/components/profile/ProfilePostsSection";
+import ImpactAnalytics from "@/components/profile/ImpactAnalytics";
 import Navbar from "@/components/layout/Navbar";
 import { Link } from "react-router-dom";
 import { Settings } from "lucide-react";
