@@ -39,18 +39,20 @@ export default function ProfileHeader({ profile, user }) {
 
           {/* Name & meta */}
           <div className="flex-1 pb-1">
-            <div className="flex flex-wrap items-center gap-2">
+            <div className="flex flex-col gap-1">
               <h1 className="text-2xl font-bold text-foreground font-inter">
                 {user?.full_name || "Anonymous Hero"}
               </h1>
-              <span className="inline-flex items-center gap-1 text-xs font-bold text-white bg-gradient-to-r from-primary to-accent px-2.5 py-0.5 rounded-full shadow-sm">
-                <Zap className="w-3 h-3" /> Changer
-              </span>
-              {profile?.is_verified && (
-                <span className="inline-flex items-center gap-1 text-xs font-medium text-primary bg-primary/10 px-2 py-0.5 rounded-full w-fit">
-                  <BadgeCheck className="w-3 h-3" /> Verified
+              <div className="flex flex-wrap items-center gap-2">
+                <span className="inline-flex items-center gap-1 text-xs font-bold text-white bg-gradient-to-r from-primary to-accent px-2.5 py-0.5 rounded-full shadow-sm">
+                  <Zap className="w-3 h-3" /> Changer
                 </span>
-              )}
+                {profile?.is_verified && (
+                  <span className="inline-flex items-center gap-1 text-xs font-medium text-primary bg-primary/10 px-2 py-0.5 rounded-full w-fit">
+                    <BadgeCheck className="w-3 h-3" /> Verified
+                  </span>
+                )}
+              </div>
             </div>
             <div className="flex flex-wrap items-center gap-3 mt-1 text-sm text-muted-foreground">
               {profile?.location && (
