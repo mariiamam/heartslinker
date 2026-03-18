@@ -81,6 +81,11 @@ export default function ProfileHeader({ profile, user }) {
 
 
 
+        {/* Tagline under avatar */}
+        {profile?.tagline && (
+          <p className="mt-3 text-sm text-muted-foreground italic">{profile.tagline.slice(0, 50)}</p>
+        )}
+
         {/* Causes */}
         {profile?.causes?.length > 0 && (
           <div className="flex flex-wrap gap-2 mt-4">
