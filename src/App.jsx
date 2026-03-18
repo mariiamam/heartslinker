@@ -16,6 +16,7 @@ import MyUpdates from "./pages/MyUpdates";
 import MyCampaigns from "./pages/MyCampaigns";
 import Settings from "./pages/Settings";
 import SocialFeed from "./pages/SocialFeed";
+import NGOProfile from "./pages/NGOProfile";
 
 const AuthenticatedApp = () => {
   const { isLoadingAuth, isLoadingPublicSettings, authError, navigateToLogin } = useAuth();
