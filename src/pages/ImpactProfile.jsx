@@ -10,10 +10,9 @@ import TestimonialsSection from "@/components/profile/TestimonialsSection";
 import SkillsSection from "@/components/profile/SkillsSection";
 import MyStorySection from "@/components/profile/MyStorySection";
 import ProfilePostsSection from "@/components/profile/ProfilePostsSection";
-import UpdatesWindow from "@/components/profile/UpdatesWindow";
-import MyCampaignsWindow from "@/components/profile/MyCampaignsWindow";
 import Navbar from "@/components/layout/Navbar";
-import { Zap, Bell } from "lucide-react";
+import { Zap, Bell, Briefcase } from "lucide-react";
+import { Link, useNavigate } from "react-router-dom";
 
 export default function ImpactProfile() {
   const [user, setUser] = useState(null);
