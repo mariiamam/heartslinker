@@ -81,8 +81,35 @@ export default function ImpactProfile() {
       <Navbar />
 
       <div className="max-w-4xl mx-auto pb-16">
+        {/* Right-click context menu */}
+        {contextMenu && (
+          <div
+            className="fixed z-50 bg-white border border-border rounded-xl shadow-lg py-1.5 min-w-48"
+            style={{ top: contextMenu.y, left: contextMenu.x }}
+            onClick={e => e.stopPropagation()}
+          >
+            <button
+              onClick={() => { navigate("/MyUpdates"); setContextMenu(null); }}
+              className="w-full flex items-center gap-3 px-4 py-2.5 text-sm hover:bg-muted/50 transition-colors text-left"
+            >
+              <Bell className="w-4 h-4 text-primary" />
+              <span>My Updates</span>
+              {unread > 0 && <span className="ml-auto bg-primary text-white text-xs rounded-full px-1.5 py-0.5 font-bold">{unread}</span>}
+            </button>
+            <button
+              onClick={() => { navigate("/MyCampaigns"); setContextMenu(null); }}
+              className="w-full flex items-center gap-3 px-4 py-2.5 text-sm hover:bg-muted/50 transition-colors text-left"
+            >
+              <Briefcase className="w-4 h-4 text-primary" />
+              <span>My Campaigns & Activities</span>
+            </button>
+          </div>
+        )}
+
         {/* Header */}
-        <ProfileHeader profile={profile} user={user} />
+        <div onContextMenu={handleRightClick}>
+          <ProfileHeader profile={profile} user={user} />
+        </div>
 
         {/* "Changer" badge — private, shown under name */}
         <div className="px-6 md:px-10 mt-3">
