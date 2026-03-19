@@ -12,8 +12,8 @@ export default function HoursApproval({ hourEntries, activities }) {
       const activity = activities.find(a => a.id === entry.activity_id);
 
       if (status === "approved") {
-        // Update the entry to approved
-        await base44.entities.HourEntry.update(id, { status: "approved" });
+        // Update the entry to approved with reviewed date
+        await base44.entities.HourEntry.update(id, { status: "approved", reviewed_at: new Date().toISOString() });
         // Notify the volunteer
         await base44.entities.Notification.create({
           user_email: entry.user_email,
@@ -31,8 +31,8 @@ export default function HoursApproval({ hourEntries, activities }) {
           });
         }
       } else {
-        // Rejected: delete the entry and notify
-        await base44.entities.HourEntry.delete(id);
+        // Rejected: update status with reviewed date and notify
+        await base44.entities.HourEntry.update(id, { status: "rejected", reviewed_at: new Date().toISOString() });
         await base44.entities.Notification.create({
           user_email: entry.user_email,
           type: "hour_rejected",
