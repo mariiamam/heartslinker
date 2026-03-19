@@ -3,7 +3,8 @@ import { base44 } from "@/api/base44Client";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Plus, Users, DollarSign, MapPin, X } from "lucide-react";
+import { Plus, Users, MapPin, AlertTriangle } from "lucide-react";
+import CampaignDetailModal from "./CampaignDetailModal";
 
 export default function CampaignsSection({ campaigns, ngoId }) {
   const [showForm, setShowForm] = useState(false);
