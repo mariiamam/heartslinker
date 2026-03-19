@@ -126,7 +126,7 @@ function CVView({ cv, user, activities, onEdit }) {
 
         {/* Skills */}
         {allSkills.length > 0 && (
-          <CVSection icon="🛠" title="Skills">
+          <CVSection icon="🛠" title="Skills" collapsible>
             {cv?.cv_primary_skills?.length > 0 && (
               <div className="mb-2">
                 <p className="text-xs text-muted-foreground font-medium mb-1.5">Primary Skills</p>
@@ -155,14 +155,12 @@ function CVView({ cv, user, activities, onEdit }) {
 
         {/* Languages */}
         {cv?.cv_languages?.filter(l => l.language).length > 0 && (
-          <CVSection icon="🌐" title="Languages">
-            <div className="flex flex-wrap gap-3">
+          <CVSection icon="🌐" title="Languages" collapsible>
+            <div className="flex flex-wrap gap-2">
               {cv.cv_languages.filter(l => l.language).map((l, i) => (
-                <div key={i} className="flex items-center gap-2 bg-muted/40 rounded-xl px-3 py-2">
-                  <Globe className="w-3.5 h-3.5 text-muted-foreground" />
-                  <span className="text-sm font-semibold text-foreground">{l.language}</span>
-                  <span className="text-xs text-muted-foreground border border-border rounded-full px-2 py-0.5">{l.level}</span>
-                </div>
+                <span key={i} className="text-sm bg-muted/40 rounded-xl px-3 py-1.5 font-medium text-foreground">
+                  {l.language} — <span className="text-muted-foreground font-normal">{l.level}</span>
+                </span>
               ))}
             </div>
           </CVSection>
@@ -170,7 +168,7 @@ function CVView({ cv, user, activities, onEdit }) {
 
         {/* Experience */}
         {(cv?.cv_experience?.filter(e => e.org || e.role).length > 0 || verifiedActivities.length > 0) && (
-          <CVSection icon="📋" title="Volunteering Experience">
+          <CVSection icon="📋" title="Volunteering Experience" collapsible>
             <div className="space-y-3">
               {(cv?.cv_experience || []).filter(e => e.org || e.role).map((exp, i) => (
                 <div key={i} className="border-l-2 border-primary/30 pl-4 py-1">
@@ -197,7 +195,7 @@ function CVView({ cv, user, activities, onEdit }) {
 
         {/* Availability */}
         {(cv?.cv_availability || cv?.cv_available_days?.length > 0 || cv?.cv_start_date) && (
-          <CVSection icon="📅" title="Availability">
+          <CVSection icon="📅" title="Availability" collapsible>
             <div className="flex flex-wrap gap-3">
               {cv?.cv_availability && (
                 <InfoPill icon={<Clock className="w-3.5 h-3.5" />} text={cv.cv_availability} />
