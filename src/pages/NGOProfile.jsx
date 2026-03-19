@@ -377,47 +377,116 @@ function StatBox({ icon: Icon, color, value, label }) {
 }
 
 function CampaignsList({ campaigns }) {
+  const [expanded, setExpanded] = useState(null);
+
   if (!campaigns.length) return (
     <div className="bg-white border border-border rounded-2xl p-8 text-center text-muted-foreground text-sm shadow-sm">No campaigns yet.</div>
   );
+  
   return (
     <div className="space-y-3">
-      {campaigns.map(c => (
-        <div key={c.id} className="bg-white border border-border rounded-2xl p-5 shadow-sm">
-          <div className="flex items-start justify-between gap-3">
-            <div className="flex-1">
-              <div className="flex items-center gap-2 mb-2">
-                <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${c.type === "fundraising" ? "bg-amber-100 text-amber-700" : "bg-green-100 text-green-700"}`}>
-                  {c.type === "fundraising" ? "Fundraising" : "Volunteers"}
-                </span>
-                {/* Completed / Ongoing badge */}
-                <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${c.is_active ? "bg-blue-100 text-blue-700" : "bg-gray-100 text-gray-500"}`}>
-                  {c.is_active ? "Ongoing" : "Completed"}
-                </span>
+      {campaigns.map(c => {
+        const isFund = c.type === "fundraising";
+        const isOpen = expanded === c.id;
+        return (
+          <div key={c.id} 
+            onClick={() => setExpanded(isOpen ? null : c.id)}
+            className="bg-white rounded-2xl border border-border shadow-sm cursor-pointer hover:shadow-md hover:border-primary/30 transition-all overflow-hidden">
+            {/* Orange top line */}
+            <div className="h-1.5 bg-gradient-to-r from-primary to-accent w-full" />
+            
+            <div className="p-5 space-y-2">
+              <div className="flex items-start justify-between gap-3">
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2 mb-2 flex-wrap">
+                    <span className="text-xs font-semibold px-2 py-0.5 rounded-full" 
+                      style={{backgroundColor: isFund ? "#fed7aa" : "#bbf7d0", color: isFund ? "#a16207" : "#15803d"}}>
+                      {isFund ? "💰 Fundraising" : "🤝 Volunteers"}
+                    </span>
+                    <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${c.is_active ? "bg-blue-100 text-blue-700" : "bg-gray-100 text-gray-500"}`}>
+                      {c.is_active ? "Ongoing" : "Completed"}
+                    </span>
+                  </div>
+                  <h3 className="font-semibold text-foreground">{c.title}</h3>
+                  {c.location && (
+                    <p className="text-xs text-muted-foreground mt-1 flex items-center gap-1">
+                      <MapPin className="w-3 h-3" /> {c.location}
+                    </p>
+                  )}
+                </div>
+                <div className="text-muted-foreground flex-shrink-0">
+                  {isOpen ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+                </div>
               </div>
-              <h3 className="font-semibold text-foreground">{c.title}</h3>
-              {c.description && <p className="text-sm text-muted-foreground mt-1 line-clamp-2">{c.description}</p>}
+
+              {/* Quick preview */}
+              {c.description && (
+                <p className="text-sm text-foreground/70 leading-relaxed">{c.description.slice(0, 80)}{c.description.length > 80 ? "…" : ""}</p>
+              )}
+
+              {/* Quick stats */}
+              {isFund && c.goal_amount > 0 ? (
+                <div className="flex items-center gap-2 text-xs text-muted-foreground pt-1">
+                  <div className="flex-1 bg-muted rounded-full h-1.5">
+                    <div className="h-1.5 rounded-full bg-gradient-to-r from-primary to-accent"
+                      style={{ width: `${Math.min(100, ((c.collected_amount || 0) / c.goal_amount) * 100)}%` }} />
+                  </div>
+                  <span className="whitespace-nowrap font-medium">${(c.collected_amount || 0).toLocaleString()} / ${c.goal_amount.toLocaleString()}</span>
+                </div>
+              ) : !isFund && c.volunteers_needed ? (
+                <div className="flex items-center gap-1.5 text-xs text-primary font-medium">
+                  <Users className="w-3 h-3" /> {c.volunteers_enrolled || 0} / {c.volunteers_needed} volunteers
+                </div>
+              ) : null}
             </div>
+
+            {/* Expanded details */}
+            {isOpen && (
+              <div className="border-t border-border bg-secondary/20 px-5 py-4 space-y-3 text-sm">
+                {c.description && (
+                  <div>
+                    <p className="text-xs font-semibold text-muted-foreground mb-1">Description</p>
+                    <p className="text-foreground/80">{c.description}</p>
+                  </div>
+                )}
+
+                {c.category && (
+                  <div>
+                    <p className="text-xs font-semibold text-muted-foreground mb-1">Category</p>
+                    <span className="text-xs bg-primary/10 text-primary font-medium px-2 py-1 rounded-full">{c.category}</span>
+                  </div>
+                )}
+
+                {c.start_date || c.end_date ? (
+                  <div>
+                    <p className="text-xs font-semibold text-muted-foreground mb-1">Timeline</p>
+                    <p className="text-foreground/80 text-xs">{c.start_date ? `From ${c.start_date}` : ""}{c.end_date ? ` to ${c.end_date}` : ""}</p>
+                  </div>
+                ) : null}
+
+                {isFund && c.goal_amount > 0 ? (
+                  <div>
+                    <p className="text-xs font-semibold text-muted-foreground mb-1">Fundraising Progress</p>
+                    <p className="text-foreground/80 text-xs">${(c.collected_amount || 0).toLocaleString()} raised of ${c.goal_amount.toLocaleString()} goal</p>
+                  </div>
+                ) : !isFund && c.volunteers_needed ? (
+                  <div>
+                    <p className="text-xs font-semibold text-muted-foreground mb-1">Volunteer Spots</p>
+                    <p className="text-foreground/80 text-xs">{c.volunteers_enrolled || 0} / {c.volunteers_needed} volunteers{c.min_age || c.max_age ? ` • Ages ${c.min_age || "any"} – ${c.max_age || "any"}` : ""}</p>
+                  </div>
+                ) : null}
+
+                {c.requirements && (
+                  <div>
+                    <p className="text-xs font-semibold text-muted-foreground mb-1">Requirements</p>
+                    <p className="text-foreground/80 text-xs">{c.requirements}</p>
+                  </div>
+                )}
+              </div>
+            )}
           </div>
-          {c.type === "fundraising" && c.goal_amount > 0 && (
-            <div className="mt-3">
-              <div className="flex justify-between text-xs text-muted-foreground mb-1">
-                <span>${(c.collected_amount || 0).toLocaleString()} raised</span>
-                <span>Goal: ${c.goal_amount.toLocaleString()}</span>
-              </div>
-              <div className="w-full bg-muted rounded-full h-2">
-                <div className="h-2 rounded-full bg-gradient-to-r from-primary to-accent transition-all"
-                  style={{ width: `${Math.min(100, ((c.collected_amount || 0) / c.goal_amount) * 100)}%` }} />
-              </div>
-            </div>
-          )}
-          {c.type === "volunteers" && c.volunteers_needed > 0 && (
-            <p className="text-xs text-muted-foreground mt-2 flex items-center gap-1">
-              <Users className="w-3 h-3" /> {c.volunteers_needed} volunteers needed{c.location ? ` · ${c.location}` : ""}
-            </p>
-          )}
-        </div>
-      ))}
+        );
+      })}
     </div>
   );
 }
