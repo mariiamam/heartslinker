@@ -177,6 +177,7 @@ export default function VolunteersList({ activities, hourEntries }) {
           </div>
         </div>
         )}
+        );
         }
 
         function StatusBadge({ status }) {
