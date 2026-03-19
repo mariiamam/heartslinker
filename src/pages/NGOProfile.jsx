@@ -230,7 +230,7 @@ export default function NGOProfile() {
         <div className="px-6 md:px-10 mt-5 grid grid-cols-2 md:grid-cols-4 gap-3">
           <StatBox icon={Users} color="text-primary" value={uniqueVolunteers} label="Volunteers" />
           <StatBox icon={Clock} color="text-amber-500" value={`${approvedHours}h`} label="Volunteer Hours" />
-          <StatBox icon={Megaphone} color="text-green-600" value={campaigns.length} label="Campaigns" />
+          <StatBox icon={Megaphone} color="text-green-600" value={campaigns.filter(c => c.is_active).length} label="Active Campaigns" />
           {/* Rating box */}
           <div className="bg-white border border-border rounded-2xl p-4 shadow-sm flex items-center gap-3">
             <div className="w-9 h-9 rounded-xl bg-amber-50 flex items-center justify-center flex-shrink-0">
