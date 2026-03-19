@@ -58,6 +58,14 @@ export default function PublicUserProfile() {
 
   const profile = profiles[0] || null;
 
+  if (!userEmail) return (
+    <div className="min-h-screen bg-background flex items-center justify-center">
+      <div className="text-center">
+        <p className="text-muted-foreground">No user specified. Use: /PublicUserProfile?email=user@example.com</p>
+      </div>
+    </div>
+  );
+
   if (!user) return (
     <div className="min-h-screen bg-background flex items-center justify-center">
       <div className="w-8 h-8 border-4 border-primary/30 border-t-primary rounded-full animate-spin" />
