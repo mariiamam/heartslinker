@@ -14,9 +14,13 @@ const CAUSE_COLORS = {
   "food": "bg-yellow-100 text-yellow-700",
 };
 
-export default function ProfileHeader({ profile, user }) {
+export default function ProfileHeader({ profile, user, activities = [], hourEntries = [] }) {
   const coverUrl = profile?.cover_url || "https://images.unsplash.com/photo-1469571486292-0ba58a3f068b?w=1200&q=80";
   const avatarUrl = profile?.avatar_url || `https://api.dicebear.com/7.x/notionists/svg?seed=${user?.email}`;
+
+  const totalHours = hourEntries.filter(h => h.status === "approved").reduce((s, h) => s + (h.hours || 0), 0);
+  const uniqueNGOs = new Set(activities.map(a => a.ngo_id).filter(Boolean)).size;
+  const activityCount = activities.length;
 
   return (
     <div className="relative">

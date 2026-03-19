@@ -53,22 +53,26 @@ export default function MyCampaignsWindow({ activities, userEmail }) {
     const entries = getHoursForActivity(act.id);
     const isDonation = act.type === "donation";
     const isOpen = expanded === act.id;
+    const totalApproved = approvedHours(act.id);
+    const statusLabel = act.status === "completed" ? "Completed" : act.status === "cancelled" ? "Cancelled" : "In Progress";
+    const statusColor = act.status === "completed" ? "bg-green-100 text-green-700" : act.status === "cancelled" ? "bg-red-100 text-red-600" : "bg-amber-100 text-amber-700";
 
     return (
       <div key={act.id} className="border border-border rounded-xl overflow-hidden">
         <div
-          className="flex items-center gap-3 px-4 py-3 cursor-pointer hover:bg-muted/30 transition-colors"
+          className="flex items-start gap-3 px-4 py-3 cursor-pointer hover:bg-muted/30 transition-colors"
           onClick={() => setExpanded(isOpen ? null : act.id)}
         >
           <div className="flex-1 min-w-0">
             <p className="font-semibold text-foreground text-sm">{act.title}</p>
-            <p className="text-xs text-muted-foreground">{act.ngo_name}</p>
+            {act.ngo_name && <p className="text-xs text-muted-foreground">NGO: {act.ngo_name}</p>}
+            {act.start_date && <p className="text-xs text-muted-foreground">Since: {format(new Date(act.start_date), "MMM yyyy")}</p>}
+            <div className="flex items-center gap-2 mt-1 flex-wrap">
+              {!isDonation && <span className="text-xs font-semibold text-primary">{totalApproved}h approved</span>}
+              {isDonation && act.donation_amount && <span className="text-xs text-muted-foreground">Donated ${act.donation_amount}</span>}
+              <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${statusColor}`}>{statusLabel}</span>
+            </div>
           </div>
-          {isDonation ? (
-            <span className="text-xs text-muted-foreground">Donated{act.donation_amount ? ` $${act.donation_amount}` : ""}</span>
-          ) : (
-            <span className="text-xs font-semibold text-primary">{approvedHours(act.id)}h approved</span>
-          )}
           <button
             onClick={e => { e.stopPropagation(); toggleVisible.mutate({ id: act.id, is_visible: !act.is_visible }); }}
             className="text-muted-foreground hover:text-primary" title={act.is_visible ? "Hide from profile" : "Show on profile"}>
