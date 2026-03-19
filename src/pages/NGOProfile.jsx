@@ -10,6 +10,7 @@ import {
   ImagePlus, Pencil, Check, X, Plus, BarChart2, Megaphone, FileText,
   Star, MessageSquare, ChevronDown, ChevronUp
 } from "lucide-react";
+import { useState } from "react";
 import { Link } from "react-router-dom";
 
 export default function NGOProfile() {
