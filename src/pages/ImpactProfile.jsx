@@ -84,6 +84,17 @@ export default function ImpactProfile() {
           <QuickMenu activePanel={activePanel} onSelect={setActivePanel} />
         </div>
 
+        {/* Fixed close button — always visible when any panel is open */}
+        {activePanel && activePanel !== "cv" && (
+          <button
+            onClick={() => setActivePanel(null)}
+            className="fixed top-6 right-6 z-50 w-10 h-10 rounded-full bg-white border border-border shadow-lg flex items-center justify-center hover:bg-muted transition-colors"
+            title="Close"
+          >
+            <X className="w-5 h-5 text-foreground" />
+          </button>
+        )}
+
         {/* Side panels triggered by QuickMenu (non-CV) */}
         {activePanel && activePanel !== "cv" && (
           <div className="px-6 md:px-10 mt-5">
