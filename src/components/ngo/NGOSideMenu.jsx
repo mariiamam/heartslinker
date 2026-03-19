@@ -17,12 +17,12 @@ export default function NGOSideMenu({ ngo, campaigns, activities, hourEntries, p
 
   return (
     <>
-      {/* Hamburger button */}
+      {/* Hamburger button - inline trigger rendered by parent */}
       <button
         onClick={() => setOpen(true)}
-        className="fixed top-5 left-5 z-40 bg-white border border-border rounded-xl p-2.5 shadow-md hover:bg-muted transition-colors relative"
+        className="relative inline-flex items-center justify-center bg-white border border-border rounded-xl p-2.5 shadow-sm hover:bg-muted transition-colors"
       >
-          <Menu className="w-5 h-5 text-foreground" />
+        <Menu className="w-5 h-5 text-foreground" />
         {totalBadge > 0 && (
           <span className="absolute -top-1.5 -right-1.5 bg-primary text-white text-[10px] font-bold rounded-full w-5 h-5 flex items-center justify-center">
             {totalBadge}
