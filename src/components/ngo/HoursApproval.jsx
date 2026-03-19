@@ -102,7 +102,7 @@ function Section({ title, count, children, muted }) {
   );
 }
 
-function HourRow({ entry, activity, onApprove, onReject }) {
+function HourRow({ entry, activity, onApprove, onReject, isLoading }) {
   const STATUS_STYLE = {
     approved: "bg-green-100 text-green-700",
     rejected: "bg-red-100 text-red-700",
