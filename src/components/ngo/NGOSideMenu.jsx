@@ -5,7 +5,6 @@ import { Menu, X, Settings, BookOpen, Users, ImagePlus, Check, Instagram, Facebo
 import { format } from "date-fns";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { format } from "date-fns";
 import VolunteerCVModal from "./VolunteerCVModal";
 
 export default function NGOSideMenu({ ngo, campaigns, activities, hourEntries, participationRequests }) {
