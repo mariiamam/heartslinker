@@ -116,7 +116,14 @@ function CampaignCard({ campaign, onClick }) {
       <div className="flex items-start gap-2">
         <span className="text-lg">{isFund ? "💰" : "🤝"}</span>
         <div className="flex-1">
-          <h3 className="font-semibold text-foreground text-sm leading-snug">{campaign.title}</h3>
+          <div className="flex items-start justify-between gap-2">
+            <h3 className="font-semibold text-foreground text-sm leading-snug">{campaign.title}</h3>
+            {fewSeatsLeft && (
+              <span className="flex items-center gap-1 text-[10px] font-bold bg-orange-100 text-orange-600 px-2 py-0.5 rounded-full flex-shrink-0">
+                <AlertTriangle className="w-2.5 h-2.5" /> {seatsLeft} seats left
+              </span>
+            )}
+          </div>
           {campaign.location && (
             <span className="flex items-center gap-1 text-xs text-muted-foreground mt-0.5">
               <MapPin className="w-3 h-3" /> {campaign.location}
