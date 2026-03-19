@@ -85,6 +85,11 @@ export default function NGODashboard() {
         {/* 4. Posts */}
         <NGOPostsSection posts={posts} ngoId={ngo?.id} ngoName={ngo?.name} />
 
+        {/* Floating side menu button */}
+        <div className="fixed top-6 right-6 z-40">
+          <NGOSideMenu ngo={ngo} campaigns={campaigns} activities={activities} hourEntries={hourEntries} participationRequests={participationRequests} />
+        </div>
+
         {/* 5. Management tabs */}
         <div className="pt-4 border-t border-border">
           <h2 className="text-lg font-bold text-foreground mb-4">Management</h2>
