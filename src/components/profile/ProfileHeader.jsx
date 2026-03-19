@@ -1,5 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { MapPin, Globe, BadgeCheck, Heart, Share2, Zap } from "lucide-react";
+import { useQuery } from "@tanstack/react-query";
+import { base44 } from "@/api/base44Client";
 
 const CAUSE_COLORS = {
   "orphans": "bg-orange-100 text-orange-700",

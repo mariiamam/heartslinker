@@ -157,19 +157,19 @@ export default function MyCampaignsWindow({ activities, userEmail }) {
   return (
     <div className="bg-white rounded-2xl border border-border shadow-sm overflow-hidden">
       <div className="px-5 py-4 border-b border-border">
-        <h3 className="font-bold text-foreground">My Campaigns & Activities</h3>
-        <p className="text-xs text-muted-foreground mt-0.5">Click to expand, log hours, and manage visibility</p>
+        <h3 className="font-bold text-foreground">Campaigns I Joined</h3>
+        <p className="text-xs text-muted-foreground mt-0.5">NGO campaigns you signed up for. Expand to log hours and manage visibility.</p>
       </div>
       <div className="p-4 space-y-3">
         {active.length > 0 && (
           <div>
-            <p className="text-xs font-semibold text-primary uppercase tracking-wide mb-2">Active</p>
+            <p className="text-xs font-semibold text-primary uppercase tracking-wide mb-2">My Activities — In Progress</p>
             <div className="space-y-2">{active.map(renderActivity)}</div>
           </div>
         )}
         {done.length > 0 && (
           <div>
-            <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-2">Completed / Past</p>
+            <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-2">My Activities — Completed</p>
             <div className="space-y-2">{done.map(renderActivity)}</div>
           </div>
         )}
