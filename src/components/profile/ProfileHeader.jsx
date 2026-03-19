@@ -51,7 +51,7 @@ export default function ProfileHeader({ profile, user, activities = [], hourEntr
               </h1>
               <div className="flex flex-wrap items-center gap-2">
                 <span className="inline-flex items-center gap-1 text-xs font-bold text-white bg-gradient-to-r from-primary to-accent px-2.5 py-0.5 rounded-full shadow-sm">
-                  <Zap className="w-3 h-3" /> Changer
+                  <Zap className="w-3 h-3" /> Change Maker
                 </span>
                 {profile?.is_verified && (
                   <span className="inline-flex items-center gap-1 text-xs font-medium text-primary bg-primary/10 px-2 py-0.5 rounded-full w-fit">
@@ -87,9 +87,24 @@ export default function ProfileHeader({ profile, user, activities = [], hourEntr
 
 
 
+        {/* Impact Summary */}
+        {(totalHours > 0 || uniqueNGOs > 0 || activityCount > 0) && (
+          <div className="mt-3 flex items-center gap-1.5 flex-wrap">
+            <span className="text-sm">🌍</span>
+            <span className="text-sm font-semibold text-foreground">Impact Summary</span>
+            <span className="text-sm text-muted-foreground">
+              {[
+                totalHours > 0 && `${totalHours} hours`,
+                uniqueNGOs > 0 && `${uniqueNGOs} NGO${uniqueNGOs !== 1 ? "s" : ""}`,
+                activityCount > 0 && `${activityCount} ${activityCount === 1 ? "activity" : "activities"}`,
+              ].filter(Boolean).join(" • ")}
+            </span>
+          </div>
+        )}
+
         {/* Tagline under avatar */}
         {profile?.tagline && (
-          <p className="mt-3 text-sm text-muted-foreground italic">{profile.tagline.slice(0, 50)}</p>
+          <p className="mt-2 text-sm text-muted-foreground italic">{profile.tagline.slice(0, 50)}</p>
         )}
 
         {/* Causes */}
