@@ -150,12 +150,12 @@ export default function ImpactProfile() {
         {publicActivities.length > 0 && (
           <div className="px-6 md:px-10 mt-5">
             <div className="bg-white rounded-2xl border border-border p-5 shadow-sm">
-              <h3 className="font-bold text-foreground mb-4">Changes — What I've Done</h3>
+              <h3 className="font-bold text-foreground mb-4">Impact</h3>
               <div className="space-y-3">
                 {publicActivities.map(act => (
                   <div key={act.id} className="flex gap-3 items-start border-b border-border/50 pb-3 last:border-0 last:pb-0">
                     <div className="w-8 h-8 rounded-xl bg-primary/10 flex items-center justify-center flex-shrink-0 text-sm">
-                      {act.type === "donation" ? "💰" : "🤝"}
+                      {act.type === "donation" ? "🤝" : "🤝"}
                     </div>
                     <div>
                       <p className="text-sm font-semibold text-foreground">{act.title}</p>
