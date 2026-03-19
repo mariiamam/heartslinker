@@ -54,10 +54,17 @@ export default function CampaignsSection({ campaigns, ngoId }) {
                 💰 Fundraising
               </button>
             </div>
-            <Input placeholder="Location (e.g. Africa, Gaza)" value={form.location} onChange={e => setForm({ ...form, location: e.target.value })} className="rounded-xl" />
+            <Input placeholder="Location (e.g. Beirut, Gaza)" value={form.location} onChange={e => setForm({ ...form, location: e.target.value })} className="rounded-xl" />
             <Input placeholder="Short description" value={form.description} onChange={e => setForm({ ...form, description: e.target.value })} className="rounded-xl" />
+            <Input type="date" placeholder="Start date" value={form.start_date} onChange={e => setForm({ ...form, start_date: e.target.value })} className="rounded-xl" />
+            <Input type="date" placeholder="End date" value={form.end_date} onChange={e => setForm({ ...form, end_date: e.target.value })} className="rounded-xl" />
             {form.type === "volunteers" && (
-              <Input type="number" placeholder="Volunteers needed" value={form.volunteers_needed} onChange={e => setForm({ ...form, volunteers_needed: e.target.value })} className="rounded-xl" />
+              <>
+                <Input type="number" placeholder="Volunteers needed" value={form.volunteers_needed} onChange={e => setForm({ ...form, volunteers_needed: e.target.value })} className="rounded-xl" />
+                <Input type="number" placeholder="Already enrolled" value={form.volunteers_enrolled} onChange={e => setForm({ ...form, volunteers_enrolled: e.target.value })} className="rounded-xl" />
+                <Input type="number" placeholder="Min age" value={form.min_age} onChange={e => setForm({ ...form, min_age: e.target.value })} className="rounded-xl" />
+                <Input type="number" placeholder="Max age" value={form.max_age} onChange={e => setForm({ ...form, max_age: e.target.value })} className="rounded-xl" />
+              </>
             )}
             {form.type === "fundraising" && (
               <>
@@ -65,6 +72,8 @@ export default function CampaignsSection({ campaigns, ngoId }) {
                 <Input type="number" placeholder="Already collected ($)" value={form.collected_amount} onChange={e => setForm({ ...form, collected_amount: e.target.value })} className="rounded-xl" />
               </>
             )}
+            <textarea placeholder="Requirements (what you're looking for in volunteers)" value={form.requirements} onChange={e => setForm({ ...form, requirements: e.target.value })}
+              className="md:col-span-2 w-full text-sm border border-input rounded-xl px-3 py-2 resize-none focus:outline-none focus:ring-1 focus:ring-ring" rows={3} />
           </div>
           <div className="flex gap-2 justify-end">
             <Button size="sm" variant="outline" className="rounded-xl" onClick={() => setShowForm(false)}>Cancel</Button>
