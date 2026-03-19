@@ -17,6 +17,7 @@ import MyCampaigns from "./pages/MyCampaigns";
 import Settings from "./pages/Settings";
 import SocialFeed from "./pages/SocialFeed";
 import NGOProfile from "./pages/NGOProfile";
+import PublicUserProfile from "./pages/PublicUserProfile";
 
 const AuthenticatedApp = () => {
   const { isLoadingAuth, isLoadingPublicSettings, authError, navigateToLogin } = useAuth();
@@ -57,6 +58,7 @@ const AuthenticatedApp = () => {
       <Route path="/Settings" element={<Settings />} />
       <Route path="/SocialFeed" element={<SocialFeed />} />
       <Route path="/NGOProfile" element={<NGOProfile />} />
+      <Route path="/PublicUserProfile" element={<PublicUserProfile />} />
       <Route path="*" element={<PageNotFound />} />
     </Routes>
   );
