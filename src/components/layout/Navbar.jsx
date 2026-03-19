@@ -10,7 +10,6 @@ const links = [
   { label: "NGOs", to: "/NGODirectory" },
   { label: "Feed", to: "/SocialFeed" },
   { label: "My Profile", to: "/ImpactProfile" },
-  { label: "My NGO", to: "/NGOProfile" },
 ];
 
 export default function Navbar() {

@@ -9,6 +9,7 @@ import NGOStatsBar from "@/components/ngo/NGOStatsBar";
 import NGOHero from "@/components/ngo/NGOHero";
 import CampaignsSection from "@/components/ngo/CampaignsSection";
 import NGOPostsSection from "@/components/ngo/NGOPostsSection";
+import NGOSideMenu from "@/components/ngo/NGOSideMenu";
 
 export default function NGODashboard() {
   const [user, setUser] = useState(null);
