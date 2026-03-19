@@ -15,6 +15,7 @@ import MyCampaignsWindow from "@/components/profile/MyCampaignsWindow";
 import QuickMenu from "@/components/profile/QuickMenu";
 import MyCVPanel from "@/components/profile/MyCVPanel";
 import Navbar from "@/components/layout/Navbar";
+import { X } from "lucide-react";
 
 export default function ImpactProfile() {
   const [user, setUser] = useState(null);
