@@ -103,12 +103,16 @@ export default function CampaignsSection({ campaigns, ngoId }) {
   );
 }
 
-function CampaignCard({ campaign }) {
+function CampaignCard({ campaign, onClick }) {
   const isFund = campaign.type === "fundraising";
   const progress = isFund && campaign.goal_amount ? Math.min(100, Math.round((campaign.collected_amount / campaign.goal_amount) * 100)) : 0;
+  const seatsLeft = campaign.volunteers_needed && campaign.volunteers_enrolled != null
+    ? campaign.volunteers_needed - (campaign.volunteers_enrolled || 0)
+    : null;
+  const fewSeatsLeft = seatsLeft !== null && seatsLeft <= 10 && seatsLeft > 0;
 
   return (
-    <div className="bg-white rounded-2xl border border-border p-5 shadow-sm space-y-3">
+    <div onClick={onClick} className="bg-white rounded-2xl border border-border p-5 shadow-sm space-y-3 cursor-pointer hover:shadow-md hover:border-primary/30 transition-all">
       <div className="flex items-start gap-2">
         <span className="text-lg">{isFund ? "💰" : "🤝"}</span>
         <div className="flex-1">
