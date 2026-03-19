@@ -13,6 +13,7 @@ import EditProfileForm from "@/components/profile/EditProfileForm";
 import UpdatesWindow from "@/components/profile/UpdatesWindow";
 import MyCampaignsWindow from "@/components/profile/MyCampaignsWindow";
 import QuickMenu from "@/components/profile/QuickMenu";
+import MyCVPanel from "@/components/profile/MyCVPanel";
 import Navbar from "@/components/layout/Navbar";
 
 export default function ImpactProfile() {
