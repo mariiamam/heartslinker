@@ -1,7 +1,7 @@
-import { X, MapPin, Users, Calendar, ClipboardList, UserCheck, AlertTriangle } from "lucide-react";
+import { X, MapPin, Users, Calendar, ClipboardList, UserCheck, AlertTriangle, Clock } from "lucide-react";
 import { format } from "date-fns";
 
-export default function CampaignDetailModal({ campaign, onClose }) {
+export default function CampaignDetailModal({ campaign, onClose, ngoName }) {
   if (!campaign) return null;
 
   const isFund = campaign.type === "fundraising";
@@ -13,6 +13,8 @@ export default function CampaignDetailModal({ campaign, onClose }) {
   const progress = isFund && campaign.goal_amount
     ? Math.min(100, Math.round(((campaign.collected_amount || 0) / campaign.goal_amount) * 100))
     : 0;
+
+  const fmt = (d) => { try { return format(new Date(d), "MMM d, yyyy"); } catch { return d; } };
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm" onClick={onClose}>
@@ -26,9 +28,19 @@ export default function CampaignDetailModal({ campaign, onClose }) {
             <span className="text-2xl">{isFund ? "💰" : "🤝"}</span>
             <div>
               <h2 className="font-bold text-foreground text-lg leading-snug">{campaign.title}</h2>
-              <span className="text-xs font-medium px-2 py-0.5 rounded-full bg-primary/10 text-primary mt-1 inline-block">
-                {isFund ? "Fundraising" : "Volunteer Campaign"}
-              </span>
+              <div className="flex flex-wrap items-center gap-1.5 mt-1">
+                <span className="text-xs font-medium px-2 py-0.5 rounded-full bg-primary/10 text-primary">
+                  {isFund ? "Fundraising" : "Volunteer Campaign"}
+                </span>
+                {campaign.category && (
+                  <span className="text-xs font-medium px-2 py-0.5 rounded-full bg-accent/20 text-accent-foreground">
+                    {campaign.category}
+                  </span>
+                )}
+                {ngoName && (
+                  <span className="text-xs text-muted-foreground font-medium">by {ngoName}</span>
+                )}
+              </div>
             </div>
           </div>
           <button onClick={onClose} className="p-1.5 rounded-xl hover:bg-muted transition-colors flex-shrink-0">
@@ -48,6 +60,14 @@ export default function CampaignDetailModal({ campaign, onClose }) {
             <div className="flex items-center gap-2 bg-red-50 border border-red-200 rounded-2xl px-4 py-2.5">
               <AlertTriangle className="w-4 h-4 text-red-500 flex-shrink-0" />
               <p className="text-sm font-semibold text-red-600">This campaign is full</p>
+            </div>
+          )}
+
+          {/* Sign-up deadline banner */}
+          {campaign.signup_deadline && (
+            <div className="flex items-center gap-2 bg-blue-50 border border-blue-200 rounded-2xl px-4 py-2.5">
+              <Clock className="w-4 h-4 text-blue-500 flex-shrink-0" />
+              <p className="text-sm font-semibold text-blue-700">Sign-up deadline: {fmt(campaign.signup_deadline)}</p>
             </div>
           )}
 
@@ -72,10 +92,10 @@ export default function CampaignDetailModal({ campaign, onClose }) {
               />
             )}
             {campaign.start_date && (
-              <InfoTile icon={Calendar} label="Start Date" value={format(new Date(campaign.start_date), "MMM d, yyyy")} />
+              <InfoTile icon={Calendar} label="Start Date" value={fmt(campaign.start_date)} />
             )}
             {campaign.end_date && (
-              <InfoTile icon={Calendar} label="End Date" value={format(new Date(campaign.end_date), "MMM d, yyyy")} />
+              <InfoTile icon={Calendar} label="End Date" value={fmt(campaign.end_date)} />
             )}
             {(campaign.min_age || campaign.max_age) && (
               <InfoTile
