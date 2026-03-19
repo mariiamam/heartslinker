@@ -7,13 +7,49 @@ import { format } from "date-fns";
 export default function HoursApproval({ hourEntries, activities }) {
   const qc = useQueryClient();
 
-  const updateEntry = useMutation({
-    mutationFn: ({ id, status }) => base44.entities.HourEntry.update(id, { status }),
-    onSuccess: () => qc.invalidateQueries(["hour-entries"]),
+  const reviewEntry = useMutation({
+    mutationFn: async ({ id, status, entry }) => {
+      const activity = activities.find(a => a.id === entry.activity_id);
+
+      if (status === "approved") {
+        // Update the entry to approved
+        await base44.entities.HourEntry.update(id, { status: "approved" });
+        // Notify the volunteer
+        await base44.entities.Notification.create({
+          user_email: entry.user_email,
+          type: "hour_approved",
+          title: "Hours Verified ✅",
+          message: `Your ${entry.hours}h for "${activity?.title || "activity"}" have been verified by the NGO.`,
+          is_read: false,
+        });
+        // Add to volunteer's impact profile total hours
+        const profiles = await base44.entities.ImpactProfile.filter({ created_by: entry.user_email });
+        if (profiles.length > 0) {
+          const profile = profiles[0];
+          await base44.entities.ImpactProfile.update(profile.id, {
+            volunteer_hours: (profile.volunteer_hours || 0) + Number(entry.hours),
+          });
+        }
+      } else {
+        // Rejected: delete the entry and notify
+        await base44.entities.HourEntry.delete(id);
+        await base44.entities.Notification.create({
+          user_email: entry.user_email,
+          type: "hour_rejected",
+          title: "Hours Request Rejected",
+          message: `Your ${entry.hours}h request for "${activity?.title || "activity"}" was rejected by the NGO.`,
+          is_read: false,
+        });
+      }
+    },
+    onSuccess: () => {
+      qc.invalidateQueries(["hour-entries"]);
+      qc.invalidateQueries(["my-hour-entries"]);
+    },
   });
 
   const pending = hourEntries.filter(h => h.status === "pending");
-  const reviewed = hourEntries.filter(h => h.status !== "pending");
+  const reviewed = hourEntries.filter(h => h.status === "approved");
 
   const getActivity = (id) => activities.find(a => a.id === id);
 
@@ -28,17 +64,27 @@ export default function HoursApproval({ hourEntries, activities }) {
       {pending.length > 0 && (
         <Section title="Pending Approval" count={pending.length}>
           {pending.map(h => (
-            <HourRow key={h.id} entry={h} activity={getActivity(h.activity_id)} onApprove={() => updateEntry.mutate({ id: h.id, status: "approved" })} onReject={() => updateEntry.mutate({ id: h.id, status: "rejected" })} />
+            <HourRow key={h.id} entry={h} activity={getActivity(h.activity_id)}
+              onApprove={() => reviewEntry.mutate({ id: h.id, status: "approved", entry: h })}
+              onReject={() => reviewEntry.mutate({ id: h.id, status: "rejected", entry: h })}
+              isLoading={reviewEntry.isPending}
+            />
           ))}
         </Section>
       )}
 
       {reviewed.length > 0 && (
-        <Section title="Reviewed" count={reviewed.length} muted>
+        <Section title="Approved" count={reviewed.length} muted>
           {reviewed.map(h => (
             <HourRow key={h.id} entry={h} activity={getActivity(h.activity_id)} />
           ))}
         </Section>
+      )}
+
+      {pending.length === 0 && reviewed.length === 0 && (
+        <div className="bg-white rounded-2xl border border-border p-10 text-center text-muted-foreground text-sm">
+          No hour entries yet.
+        </div>
       )}
     </div>
   );
