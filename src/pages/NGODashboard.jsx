@@ -73,6 +73,12 @@ export default function NGODashboard() {
 
       <div className="max-w-4xl mx-auto px-4 md:px-8 py-8 space-y-8">
 
+        {/* Top row: Menu button */}
+        <div className="flex items-center justify-between">
+          <NGOSideMenu ngo={ngo} campaigns={campaigns} activities={activities} hourEntries={hourEntries} participationRequests={participationRequests} />
+          <span className="text-sm text-muted-foreground font-medium">NGO Dashboard</span>
+        </div>
+
         {/* 1. Hero: Cover + Name + Mission */}
         <NGOHero ngo={ngo} />
 
@@ -84,9 +90,6 @@ export default function NGODashboard() {
 
         {/* 4. Posts */}
         <NGOPostsSection posts={posts} ngoId={ngo?.id} ngoName={ngo?.name} />
-
-        {/* Side menu */}
-        <NGOSideMenu ngo={ngo} campaigns={campaigns} activities={activities} hourEntries={hourEntries} participationRequests={participationRequests} />
 
         {/* 5. Management tabs */}
         <div className="pt-4 border-t border-border">
