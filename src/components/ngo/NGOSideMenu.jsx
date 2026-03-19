@@ -1,15 +1,19 @@
 import { useState } from "react";
 import { base44 } from "@/api/base44Client";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { Menu, X, Settings, BookOpen, Users, ImagePlus, Check, Instagram, Facebook, Globe, MapPin, Calendar, Tag } from "lucide-react";
+import { Menu, X, Settings, BookOpen, Users, ImagePlus, Check, Instagram, Facebook, MapPin, Calendar, Tag, Clock, UserPlus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { format } from "date-fns";
 
-export default function NGOSideMenu({ ngo, campaigns, activities, hourEntries }) {
+export default function NGOSideMenu({ ngo, campaigns, activities, hourEntries, participationRequests }) {
   const [open, setOpen] = useState(false);
-  const [section, setSection] = useState(null); // "settings" | "history" | "volunteers"
+  const [section, setSection] = useState(null);
   const qc = useQueryClient();
+
+  const pendingHours = hourEntries.filter(h => h.status === "pending").length;
+  const pendingParticipation = (participationRequests || []).filter(r => r.status === "pending").length;
+  const totalBadge = pendingHours + pendingParticipation;
 
   return (
     <>
