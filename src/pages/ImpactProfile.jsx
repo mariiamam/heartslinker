@@ -84,8 +84,8 @@ export default function ImpactProfile() {
           <QuickMenu activePanel={activePanel} onSelect={setActivePanel} />
         </div>
 
-        {/* Side panels triggered by QuickMenu */}
-        {activePanel && (
+        {/* Side panels triggered by QuickMenu (non-CV) */}
+        {activePanel && activePanel !== "cv" && (
           <div className="px-6 md:px-10 mt-5">
             {activePanel === "analytics" && (
               <ImpactAnalytics profile={profile} activities={activities} hourEntries={hourEntries} />
@@ -99,9 +99,24 @@ export default function ImpactProfile() {
             {activePanel === "settings" && (
               <EditProfileForm profile={profile} user={user} />
             )}
-            {activePanel === "cv" && (
+          </div>
+        )}
+
+        {/* CV — fullscreen overlay */}
+        {activePanel === "cv" && (
+          <div className="fixed inset-0 z-50 bg-background overflow-y-auto">
+            <div className="max-w-3xl mx-auto px-5 py-8 pb-20">
+              <div className="flex items-center justify-between mb-6">
+                <h1 className="text-xl font-bold text-foreground">My CV</h1>
+                <button
+                  onClick={() => setActivePanel(null)}
+                  className="w-9 h-9 rounded-full bg-muted hover:bg-muted/80 flex items-center justify-center transition-colors"
+                >
+                  <X className="w-5 h-5 text-foreground" />
+                </button>
+              </div>
               <MyCVPanel user={user} activities={activities} />
-            )}
+            </div>
           </div>
         )}
 
