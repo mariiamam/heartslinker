@@ -1,9 +1,18 @@
-import { useState } from "react";
-import { ChevronDown, ChevronUp, User } from "lucide-react";
+import { useState, useEffect } from "react";
+import { ChevronDown, ChevronUp, User, X, Eye } from "lucide-react";
 import { format } from "date-fns";
+import { base44 } from "@/api/base44Client";
+import { useQuery } from "@tanstack/react-query";
 
 export default function VolunteersList({ activities, hourEntries }) {
   const [expanded, setExpanded] = useState(null);
+  const [selectedVolunteerEmail, setSelectedVolunteerEmail] = useState(null);
+  
+  const { data: selectedVolunteerProfile = null } = useQuery({
+    queryKey: ["volunteer-profile", selectedVolunteerEmail],
+    queryFn: () => base44.entities.ImpactProfile.filter({ created_by: selectedVolunteerEmail }).then(r => r[0] || null),
+    enabled: !!selectedVolunteerEmail,
+  });
 
   // Group activities by volunteer
   const volunteerMap = {};
