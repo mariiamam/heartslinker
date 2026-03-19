@@ -361,14 +361,40 @@ function ParticipationRequests({ requests, campaigns, qc }) {
   const updateRequest = useMutation({
     mutationFn: async ({ id, status, req }) => {
       await base44.entities.CampaignParticipationRequest.update(id, { status });
-      // If accepted, increment volunteers_enrolled on the campaign
+
       if (status === "accepted") {
         const campaign = campaigns.find(c => c.id === req.campaign_id);
+
+        // Increment volunteers_enrolled on the campaign
         if (campaign) {
           const newEnrolled = (campaign.volunteers_enrolled || 0) + 1;
           await base44.entities.Campaign.update(campaign.id, { volunteers_enrolled: newEnrolled });
         }
+
+        // Add to volunteer book (Activity) only if not already there for this NGO
+        const ngoId = req.ngo_id;
+        const existingActivities = await base44.entities.Activity.filter({
+          ngo_id: ngoId,
+          user_email: req.user_email,
+        });
+
+        if (existingActivities.length === 0) {
+          // New volunteer for this NGO — add to book
+          await base44.entities.Activity.create({
+            user_email: req.user_email,
+            ngo_id: ngoId,
+            ngo_name: campaign?.title ? undefined : undefined, // will be enriched below
+            campaign_id: req.campaign_id,
+            title: req.campaign_title || campaign?.title || "Campaign Volunteer",
+            status: "in_process",
+            type: "volunteer",
+            start_date: new Date().toISOString().split("T")[0],
+            is_visible: true,
+          });
+        }
+        // If already exists — do nothing (volunteer already in the book for this NGO)
       }
+
       // Send notification to volunteer
       await base44.entities.Notification.create({
         user_email: req.user_email,
@@ -381,6 +407,7 @@ function ParticipationRequests({ requests, campaigns, qc }) {
     onSuccess: () => {
       qc.invalidateQueries(["participation-requests"]);
       qc.invalidateQueries(["campaigns"]);
+      qc.invalidateQueries(["ngo-activities"]);
     },
   });
 
