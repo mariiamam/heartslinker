@@ -47,7 +47,6 @@
  *
  * The mainPage value must match a key in the PAGES object exactly.
  */
-import Campaigns from './pages/Campaigns';
 import ImpactProfile from './pages/ImpactProfile';
 import Landing from './pages/Landing';
 import MyCampaigns from './pages/MyCampaigns';
@@ -61,7 +60,6 @@ import NGODashboard from './pages/NGODashboard';
 
 
 export const PAGES = {
-    "Campaigns": Campaigns,
     "ImpactProfile": ImpactProfile,
     "Landing": Landing,
     "MyCampaigns": MyCampaigns,
