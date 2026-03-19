@@ -2,11 +2,12 @@ import { useState } from "react";
 import { base44 } from "@/api/base44Client";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
-import { Plus, ImagePlus } from "lucide-react";
+import { Plus, ImagePlus, Pencil, Trash2 } from "lucide-react";
 import { format } from "date-fns";
 
 export default function NGOPostsSection({ posts, ngoId, ngoName }) {
   const [showForm, setShowForm] = useState(false);
+  const [editingPostId, setEditingPostId] = useState(null);
   const [form, setForm] = useState({ title: "", content: "" });
   const [imageFile, setImageFile] = useState(null);
   const [uploading, setUploading] = useState(false);
@@ -14,8 +15,31 @@ export default function NGOPostsSection({ posts, ngoId, ngoName }) {
 
   const createPost = useMutation({
     mutationFn: (data) => base44.entities.NGOPost.create(data),
-    onSuccess: () => { qc.invalidateQueries(["ngo-posts"]); setShowForm(false); setForm({ title: "", content: "" }); setImageFile(null); },
+    onSuccess: () => { qc.invalidateQueries(["ngo-posts"]); closeForm(); },
   });
+
+  const updatePost = useMutation({
+    mutationFn: ({ id, data }) => base44.entities.NGOPost.update(id, data),
+    onSuccess: () => { qc.invalidateQueries(["ngo-posts"]); closeForm(); },
+  });
+
+  const deletePost = useMutation({
+    mutationFn: (id) => base44.entities.NGOPost.delete(id),
+    onSuccess: () => qc.invalidateQueries(["ngo-posts"]),
+  });
+
+  const closeForm = () => {
+    setShowForm(false);
+    setEditingPostId(null);
+    setForm({ title: "", content: "" });
+    setImageFile(null);
+  };
+
+  const openEdit = (post) => {
+    setEditingPostId(post.id);
+    setForm({ title: post.title || "", content: post.content || "" });
+    setShowForm(true);
+  };
 
   const handleSubmit = async () => {
     if (!form.content) return;
@@ -25,7 +49,12 @@ export default function NGOPostsSection({ posts, ngoId, ngoName }) {
       const res = await base44.integrations.Core.UploadFile({ file: imageFile });
       image_url = res.file_url;
     }
-    await createPost.mutateAsync({ ...form, ngo_id: ngoId, image_url });
+    const payload = { ...form, ...(image_url && { image_url }) };
+    if (editingPostId) {
+      await updatePost.mutateAsync({ id: editingPostId, data: payload });
+    } else {
+      await createPost.mutateAsync({ ...payload, ngo_id: ngoId });
+    }
     setUploading(false);
   };
 
@@ -33,7 +62,7 @@ export default function NGOPostsSection({ posts, ngoId, ngoName }) {
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <h2 className="text-lg font-bold text-foreground">Posts & Updates</h2>
-        <Button size="sm" className="rounded-xl bg-primary hover:bg-primary/90 gap-1.5 text-xs" onClick={() => setShowForm(!showForm)}>
+        <Button size="sm" className="rounded-xl bg-primary hover:bg-primary/90 gap-1.5 text-xs" onClick={() => showForm ? closeForm() : setShowForm(true)}>
           <Plus className="w-3.5 h-3.5" /> New Post
         </Button>
       </div>
@@ -60,9 +89,9 @@ export default function NGOPostsSection({ posts, ngoId, ngoName }) {
               {imageFile ? imageFile.name : "Add image"}
             </label>
             <div className="flex gap-2">
-              <Button size="sm" variant="outline" className="rounded-xl" onClick={() => { setShowForm(false); setImageFile(null); }}>Cancel</Button>
-              <Button size="sm" className="rounded-xl bg-primary hover:bg-primary/90" onClick={handleSubmit} disabled={uploading || createPost.isPending}>
-                {uploading ? "Uploading..." : "Publish"}
+              <Button size="sm" variant="outline" className="rounded-xl" onClick={closeForm}>Cancel</Button>
+              <Button size="sm" className="rounded-xl bg-primary hover:bg-primary/90" onClick={handleSubmit} disabled={uploading || createPost.isPending || updatePost.isPending}>
+                {uploading ? "Uploading..." : editingPostId ? "Update" : "Publish"}
               </Button>
             </div>
           </div>
@@ -75,25 +104,35 @@ export default function NGOPostsSection({ posts, ngoId, ngoName }) {
         </div>
       ) : (
         <div className="space-y-4">
-          {posts.map(post => (
-            <div key={post.id} className="bg-white rounded-2xl border border-border overflow-hidden shadow-sm">
-              {post.image_url && (
-                <img src={post.image_url} alt={post.title} className="w-full h-52 object-cover" />
-              )}
-              <div className="p-5">
-                <div className="flex items-center gap-2 mb-2">
-                  <span className="text-xs font-semibold text-primary">{ngoName}</span>
-                  <span className="text-muted-foreground">·</span>
-                  <span className="text-xs text-muted-foreground">
-                    {post.created_date ? format(new Date(post.created_date), "MMM d, yyyy") : ""}
-                  </span>
-                </div>
-                {post.title && <h3 className="font-semibold text-foreground mb-1">{post.title}</h3>}
-                <p className="text-sm text-foreground/80 leading-relaxed">{post.content}</p>
-              </div>
-            </div>
-          ))}
-        </div>
+           {posts.map(post => (
+             <div key={post.id} className="bg-white rounded-2xl border border-border overflow-hidden shadow-sm">
+               {post.image_url && (
+                 <img src={post.image_url} alt={post.title} className="w-full h-52 object-cover" />
+               )}
+               <div className="p-5">
+                 <div className="flex items-center justify-between gap-2 mb-2">
+                   <div className="flex items-center gap-2">
+                     <span className="text-xs font-semibold text-primary">{ngoName}</span>
+                     <span className="text-muted-foreground">·</span>
+                     <span className="text-xs text-muted-foreground">
+                       {post.created_date ? format(new Date(post.created_date), "MMM d, yyyy") : ""}
+                     </span>
+                   </div>
+                   <div className="flex gap-1.5">
+                     <button onClick={() => openEdit(post)} className="text-muted-foreground hover:text-primary transition-colors" title="Edit">
+                       <Pencil className="w-3.5 h-3.5" />
+                     </button>
+                     <button onClick={() => deletePost.mutate(post.id)} className="text-muted-foreground hover:text-destructive transition-colors" title="Delete">
+                       <Trash2 className="w-3.5 h-3.5" />
+                     </button>
+                   </div>
+                 </div>
+                 {post.title && <h3 className="font-semibold text-foreground mb-1">{post.title}</h3>}
+                 <p className="text-sm text-foreground/80 leading-relaxed">{post.content}</p>
+               </div>
+             </div>
+           ))}
+         </div>
       )}
     </div>
   );
