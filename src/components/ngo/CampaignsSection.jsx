@@ -91,9 +91,13 @@ export default function CampaignsSection({ campaigns, ngoId }) {
       ) : (
         <div className="grid md:grid-cols-2 gap-4">
           {campaigns.filter(c => c.is_active).map(c => (
-            <CampaignCard key={c.id} campaign={c} />
+            <CampaignCard key={c.id} campaign={c} onClick={() => setSelectedCampaign(c)} />
           ))}
         </div>
+      )}
+
+      {selectedCampaign && (
+        <CampaignDetailModal campaign={selectedCampaign} onClose={() => setSelectedCampaign(null)} />
       )}
     </div>
   );
