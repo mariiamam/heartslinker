@@ -57,6 +57,7 @@ import NGOProfile from './pages/NGOProfile';
 import Settings from './pages/Settings';
 import SocialFeed from './pages/SocialFeed';
 import Volunteering from './pages/Volunteering';
+import Campaigns from './pages/Campaigns';
 
 
 export const PAGES = {
@@ -70,6 +71,7 @@ export const PAGES = {
     "Settings": Settings,
     "SocialFeed": SocialFeed,
     "Volunteering": Volunteering,
+    "Campaigns": Campaigns,
 }
 
 export const pagesConfig = {
