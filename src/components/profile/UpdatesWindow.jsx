@@ -1,6 +1,6 @@
 import { base44 } from "@/api/base44Client";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { Bell, Tag, CheckCircle, XCircle, Megaphone, RefreshCw } from "lucide-react";
+import { Bell, Tag, CheckCircle, XCircle, Megaphone, RefreshCw, Trash2 } from "lucide-react";
 import { format } from "date-fns";
 
 const TYPE_META = {
