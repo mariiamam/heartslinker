@@ -383,7 +383,7 @@ function ParticipationRequests({ requests, campaigns, ngo, qc }) {
           await base44.entities.Activity.create({
             user_email: req.user_email,
             ngo_id: ngoId,
-            ngo_name: campaign?.title ? undefined : undefined, // will be enriched below
+            ngo_name: ngo?.name || "",
             campaign_id: req.campaign_id,
             title: req.campaign_title || campaign?.title || "Campaign Volunteer",
             status: "in_process",
