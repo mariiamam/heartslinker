@@ -41,7 +41,7 @@ export default function NGOSideMenu({ ngo, campaigns, activities, hourEntries, p
           {/* Header */}
           <div className="flex items-center justify-between px-5 py-4 border-b border-border">
             <h2 className="font-bold text-foreground text-lg">
-              {section === "settings" ? "Settings" : section === "history" ? "Campaign History" : section === "volunteers" ? "Volunteer Book" : "Menu"}
+              {section === "settings" ? "Settings" : section === "history" ? "Campaign History" : section === "volunteers" ? "Volunteer Book" : section === "hours" ? "Hours Requests" : section === "participation" ? "Participation Requests" : "Menu"}
             </h2>
             <button onClick={() => { if (section) setSection(null); else { setOpen(false); } }}>
               <X className="w-5 h-5 text-muted-foreground hover:text-foreground" />
@@ -55,12 +55,16 @@ export default function NGOSideMenu({ ngo, campaigns, activities, hourEntries, p
                 <MenuCard icon={Settings} label="Settings" desc="Edit mission, photo, and NGO details" onClick={() => setSection("settings")} />
                 <MenuCard icon={BookOpen} label="Campaign History" desc="All campaigns with full details" onClick={() => setSection("history")} />
                 <MenuCard icon={Users} label="Volunteer Book" desc="Who volunteered, what they did and when" onClick={() => setSection("volunteers")} />
+                <MenuCard icon={Clock} label="Hours Requests" desc="Approve or reject volunteer hour submissions" badge={pendingHours} onClick={() => setSection("hours")} />
+                <MenuCard icon={UserPlus} label="Participation Requests" desc="Accept or reject volunteers joining campaigns" badge={pendingParticipation} onClick={() => setSection("participation")} />
               </div>
             )}
 
             {section === "settings" && <SettingsPanel ngo={ngo} qc={qc} />}
             {section === "history" && <CampaignHistory campaigns={campaigns} activities={activities} />}
             {section === "volunteers" && <VolunteerBook activities={activities} hourEntries={hourEntries} />}
+            {section === "hours" && <HoursRequests hourEntries={hourEntries} activities={activities} qc={qc} />}
+            {section === "participation" && <ParticipationRequests requests={participationRequests || []} campaigns={campaigns} qc={qc} />}
           </div>
         </div>
       )}
