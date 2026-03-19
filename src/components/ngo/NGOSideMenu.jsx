@@ -177,47 +177,95 @@ function SettingsPanel({ ngo, qc }) {
 
 function CampaignHistory({ campaigns, activities }) {
   if (!campaigns.length) return (
-    <div className="p-8 text-center text-muted-foreground text-sm">No campaigns yet.</div>
+    <div className="p-10 text-center">
+      <p className="text-3xl mb-2">📋</p>
+      <p className="text-sm text-muted-foreground font-medium">No campaigns yet</p>
+    </div>
   );
 
-  return (
-    <div className="p-5 space-y-4">
-      {campaigns.map(c => {
-        const campActivities = activities.filter(a => a.campaign_id === c.id);
-        const uniqueVols = [...new Set(campActivities.map(a => a.user_email))].length;
-        return (
-          <div key={c.id} className="border border-border rounded-2xl p-4 space-y-2">
-            <div className="flex items-start justify-between gap-2">
-              <h3 className="font-semibold text-foreground text-sm">{c.title}</h3>
-              <span className={`text-xs px-2 py-0.5 rounded-full font-medium flex-shrink-0 ${c.is_active ? "bg-blue-100 text-blue-700" : "bg-gray-100 text-gray-500"}`}>
-                {c.is_active ? "Ongoing" : "Completed"}
+  const active = campaigns.filter(c => c.is_active);
+  const ended = campaigns.filter(c => !c.is_active);
+
+  const CampaignCard = ({ c }) => {
+    const enrolled = c.volunteers_enrolled || 0;
+    const needed = c.volunteers_needed || 0;
+    const progress = needed > 0 ? Math.min(100, Math.round((enrolled / needed) * 100)) : 0;
+    const isFund = c.type === "fundraising";
+    const fundProgress = isFund && c.goal_amount > 0
+      ? Math.min(100, Math.round(((c.collected_amount || 0) / c.goal_amount) * 100))
+      : 0;
+
+    return (
+      <div className="bg-white border border-border rounded-2xl overflow-hidden shadow-sm">
+        <div className={`h-1 ${c.is_active ? "bg-gradient-to-r from-primary to-accent" : "bg-muted"}`} />
+        <div className="p-4 space-y-3">
+          <div className="flex items-start justify-between gap-2">
+            <div className="flex items-center gap-2">
+              <span className="text-lg">{isFund ? "💰" : "🤝"}</span>
+              <h3 className="font-bold text-foreground text-sm leading-snug">{c.title}</h3>
+            </div>
+            <span className={`text-[10px] px-2 py-0.5 rounded-full font-bold flex-shrink-0 ${c.is_active ? "bg-emerald-100 text-emerald-700" : "bg-muted text-muted-foreground"}`}>
+              {c.is_active ? "ACTIVE" : "ENDED"}
+            </span>
+          </div>
+
+          {c.description && <p className="text-xs text-muted-foreground leading-relaxed line-clamp-2">{c.description}</p>}
+
+          <div className="flex flex-wrap gap-2">
+            {c.location && (
+              <span className="flex items-center gap-1 text-xs text-muted-foreground bg-muted/60 px-2 py-1 rounded-lg">
+                <MapPin className="w-3 h-3" /> {c.location}
               </span>
-            </div>
-            {c.description && <p className="text-xs text-muted-foreground">{c.description}</p>}
-            <div className="flex flex-wrap gap-3 text-xs text-muted-foreground pt-1">
-              <span className="flex items-center gap-1"><Tag className="w-3 h-3" />{c.type === "fundraising" ? "Fundraising" : "Volunteers"}</span>
-              {c.location && <span className="flex items-center gap-1"><MapPin className="w-3 h-3" />{c.location}</span>}
-              {c.created_date && <span className="flex items-center gap-1"><Calendar className="w-3 h-3" />Started {format(new Date(c.created_date), "MMM yyyy")}</span>}
-              <span className="flex items-center gap-1"><Users className="w-3 h-3" />{uniqueVols} volunteers participated</span>
-            </div>
-            {c.type === "fundraising" && c.goal_amount > 0 && (
-              <div className="pt-1">
-                <div className="flex justify-between text-xs text-muted-foreground mb-1">
-                  <span>${(c.collected_amount || 0).toLocaleString()} raised</span>
-                  <span>Goal: ${c.goal_amount.toLocaleString()}</span>
-                </div>
-                <div className="w-full bg-muted rounded-full h-1.5">
-                  <div className="h-1.5 rounded-full bg-gradient-to-r from-primary to-accent"
-                    style={{ width: `${Math.min(100, ((c.collected_amount || 0) / c.goal_amount) * 100)}%` }} />
-                </div>
-              </div>
             )}
-            {c.volunteers_needed > 0 && (
-              <p className="text-xs text-muted-foreground">{c.volunteers_needed} volunteers needed</p>
+            {c.start_date && (
+              <span className="flex items-center gap-1 text-xs text-muted-foreground bg-muted/60 px-2 py-1 rounded-lg">
+                <Calendar className="w-3 h-3" /> {format(new Date(c.start_date), "MMM d, yyyy")}
+              </span>
             )}
           </div>
-        );
-      })}
+
+          {!isFund && needed > 0 && (
+            <div>
+              <div className="flex justify-between text-xs mb-1">
+                <span className="text-muted-foreground font-medium">Volunteers</span>
+                <span className="font-bold text-foreground">{enrolled} / {needed}</span>
+              </div>
+              <div className="h-1.5 bg-muted rounded-full overflow-hidden">
+                <div className="h-full bg-gradient-to-r from-primary to-accent rounded-full transition-all" style={{ width: `${progress}%` }} />
+              </div>
+            </div>
+          )}
+
+          {isFund && c.goal_amount > 0 && (
+            <div>
+              <div className="flex justify-between text-xs mb-1">
+                <span className="font-semibold text-primary">${(c.collected_amount || 0).toLocaleString()} raised</span>
+                <span className="text-muted-foreground">of ${c.goal_amount.toLocaleString()}</span>
+              </div>
+              <div className="h-1.5 bg-muted rounded-full overflow-hidden">
+                <div className="h-full bg-gradient-to-r from-amber-400 to-primary rounded-full transition-all" style={{ width: `${fundProgress}%` }} />
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+    );
+  };
+
+  return (
+    <div className="p-5 space-y-5">
+      {active.length > 0 && (
+        <div>
+          <p className="text-xs font-bold text-primary uppercase tracking-widest mb-3">Active ({active.length})</p>
+          <div className="space-y-3">{active.map(c => <CampaignCard key={c.id} c={c} />)}</div>
+        </div>
+      )}
+      {ended.length > 0 && (
+        <div>
+          <p className="text-xs font-bold text-muted-foreground uppercase tracking-widest mb-3">Ended ({ended.length})</p>
+          <div className="space-y-3">{ended.map(c => <CampaignCard key={c.id} c={c} />)}</div>
+        </div>
+      )}
     </div>
   );
 }
