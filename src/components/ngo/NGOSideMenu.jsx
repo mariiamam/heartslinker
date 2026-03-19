@@ -678,6 +678,7 @@ function ParticipationRequests({ requests, campaigns, ngo, qc }) {
       qc.invalidateQueries(["participation-requests"]);
       qc.invalidateQueries(["campaigns"]);
       qc.invalidateQueries(["ngo-activities"]);
+      qc.invalidateQueries(["hour-entries"]);
     },
   });
 
