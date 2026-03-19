@@ -64,7 +64,7 @@ export default function CampaignsSection({ campaigns, ngoId }) {
   const closeForm = () => { setShowForm(false); setEditingCampaign(null); setForm(EMPTY_FORM); };
 
   const handleSubmit = () => {
-    if (!form.title) return;
+    if (!form.title || !form.location || !form.description || !form.category) return;
     const payload = {
       ...form,
       ngo_id: ngoId,
