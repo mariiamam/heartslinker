@@ -63,6 +63,7 @@ export default function ImpactProfile() {
 
   const profile = profiles[0] || null;
   const publicActivities = activities.filter(a => a.is_visible !== false);
+  const unreadNotifications = notifications.filter(n => !n.is_read).length;
 
   if (!user) return (
     <div className="min-h-screen bg-background flex items-center justify-center">
@@ -81,7 +82,7 @@ export default function ImpactProfile() {
         {/* Stats icons + Menu icon row */}
         <div className="px-6 md:px-10 mt-5 flex items-center justify-between">
           <ImpactStatsIcons profile={profile} activityCount={activities.length} />
-          <QuickMenu activePanel={activePanel} onSelect={setActivePanel} />
+          <QuickMenu activePanel={activePanel} onSelect={setActivePanel} unreadNotifications={unreadNotifications} />
         </div>
 
         {/* Full-page overlays for each panel */}
