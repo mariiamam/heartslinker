@@ -60,9 +60,13 @@ export default function VolunteersList({ activities, hourEntries }) {
               >
                 <td className="px-5 py-4">
                   <div className="flex items-center gap-3">
-                    <div className="w-8 h-8 rounded-xl bg-primary/10 flex items-center justify-center">
-                      <User className="w-4 h-4 text-primary" />
-                    </div>
+                    <button
+                      onClick={(e) => { e.stopPropagation(); setSelectedVolunteerEmail(v.email); }}
+                      className="w-8 h-8 rounded-xl bg-primary/10 flex items-center justify-center hover:bg-primary/20 transition-colors"
+                      title="View profile"
+                    >
+                      <Eye className="w-4 h-4 text-primary" />
+                    </button>
                     <span className="text-sm font-medium text-foreground">{v.email}</span>
                   </div>
                 </td>
