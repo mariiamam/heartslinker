@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import {
   Upload, CheckCircle, BadgeCheck, FileText, ChevronLeft, ChevronRight,
   Plus, Trash2, Pencil, MapPin, Phone, Mail, Calendar, Star, Globe,
-  Clock, Car, AlertCircle, Eye
+  Clock, Car, AlertCircle, Eye, ChevronDown, ChevronUp
 } from "lucide-react";
 
 const STEPS = [
