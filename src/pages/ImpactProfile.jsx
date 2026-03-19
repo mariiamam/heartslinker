@@ -84,32 +84,37 @@ export default function ImpactProfile() {
           <QuickMenu activePanel={activePanel} onSelect={setActivePanel} />
         </div>
 
-        {/* Fixed close button — always visible when any panel is open */}
+        {/* Full-page overlays for each panel */}
         {activePanel && activePanel !== "cv" && (
-          <button
-            onClick={() => setActivePanel(null)}
-            className="fixed top-6 right-6 z-50 w-10 h-10 rounded-full bg-white border border-border shadow-lg flex items-center justify-center hover:bg-muted transition-colors"
-            title="Close"
-          >
-            <X className="w-5 h-5 text-foreground" />
-          </button>
-        )}
-
-        {/* Side panels triggered by QuickMenu (non-CV) */}
-        {activePanel && activePanel !== "cv" && (
-          <div className="px-6 md:px-10 mt-5">
-            {activePanel === "analytics" && (
-              <ImpactAnalytics profile={profile} activities={activities} hourEntries={hourEntries} />
-            )}
-            {activePanel === "updates" && (
-              <UpdatesWindow notifications={notifications} />
-            )}
-            {activePanel === "campaigns" && (
-              <MyCampaignsWindow activities={activities} userEmail={user.email} />
-            )}
-            {activePanel === "settings" && (
-              <EditProfileForm profile={profile} user={user} />
-            )}
+          <div className="fixed inset-0 z-50 bg-background overflow-y-auto">
+            <div className="max-w-3xl mx-auto px-5 py-8 pb-20">
+              <div className="flex items-center justify-between mb-6">
+                <h1 className="text-xl font-bold text-foreground">
+                  {activePanel === "analytics" && "Impact Analytics"}
+                  {activePanel === "updates" && "My Updates"}
+                  {activePanel === "campaigns" && "My Campaigns & Activities"}
+                  {activePanel === "settings" && "Settings"}
+                </h1>
+                <button
+                  onClick={() => setActivePanel(null)}
+                  className="w-9 h-9 rounded-full bg-muted hover:bg-muted/80 flex items-center justify-center transition-colors"
+                >
+                  <X className="w-5 h-5 text-foreground" />
+                </button>
+              </div>
+              {activePanel === "analytics" && (
+                <ImpactAnalytics profile={profile} activities={activities} hourEntries={hourEntries} />
+              )}
+              {activePanel === "updates" && (
+                <UpdatesWindow notifications={notifications} />
+              )}
+              {activePanel === "campaigns" && (
+                <MyCampaignsWindow activities={activities} userEmail={user.email} />
+              )}
+              {activePanel === "settings" && (
+                <EditProfileForm profile={profile} user={user} />
+              )}
+            </div>
           </div>
         )}
 
