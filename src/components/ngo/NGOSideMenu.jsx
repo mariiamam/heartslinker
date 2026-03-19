@@ -682,10 +682,10 @@ function ParticipationRequests({ requests, campaigns, ngo, qc }) {
       });
     },
     onSuccess: () => {
-      qc.invalidateQueries(["participation-requests"]);
-      qc.invalidateQueries(["campaigns"]);
-      qc.invalidateQueries(["ngo-activities"]);
-      qc.invalidateQueries(["hour-entries"]);
+      qc.invalidateQueries({ queryKey: ["participation-requests"] });
+      qc.invalidateQueries({ queryKey: ["campaigns"] });
+      qc.invalidateQueries({ queryKey: ["my-activities"] });
+      qc.invalidateQueries({ queryKey: ["notifications"] });
     },
   });
 
