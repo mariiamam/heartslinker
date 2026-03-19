@@ -87,6 +87,21 @@ export default function ProfileHeader({ profile, user, activities = [], hourEntr
 
 
 
+        {/* Impact Summary */}
+        {(totalHours > 0 || uniqueNGOs > 0 || activityCount > 0) && (
+          <div className="mt-3 flex items-center gap-1.5 flex-wrap">
+            <span className="text-sm">🌍</span>
+            <span className="text-sm font-semibold text-foreground">Impact Summary</span>
+            <span className="text-sm text-muted-foreground">
+              {[
+                totalHours > 0 && `${totalHours} hours`,
+                uniqueNGOs > 0 && `${uniqueNGOs} NGO${uniqueNGOs !== 1 ? "s" : ""}`,
+                activityCount > 0 && `${activityCount} ${activityCount === 1 ? "activity" : "activities"}`,
+              ].filter(Boolean).join(" • ")}
+            </span>
+          </div>
+        )}
+
         {/* Tagline under avatar */}
         {profile?.tagline && (
           <p className="mt-2 text-sm text-muted-foreground italic">{profile.tagline.slice(0, 50)}</p>
