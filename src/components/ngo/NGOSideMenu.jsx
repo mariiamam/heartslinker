@@ -176,6 +176,20 @@ function SettingsPanel({ ngo, qc }) {
 }
 
 function CampaignHistory({ campaigns, activities }) {
+  const qc = useQueryClient();
+  const [expandedId, setExpandedId] = useState(null);
+  const [confirmDelete, setConfirmDelete] = useState(null); // campaign id for full delete confirm
+
+  const endCampaign = useMutation({
+    mutationFn: (id) => base44.entities.Campaign.update(id, { is_active: false }),
+    onSuccess: () => qc.invalidateQueries(["campaigns"]),
+  });
+
+  const deleteCampaign = useMutation({
+    mutationFn: (id) => base44.entities.Campaign.delete(id),
+    onSuccess: () => { qc.invalidateQueries(["campaigns"]); setConfirmDelete(null); setExpandedId(null); },
+  });
+
   if (!campaigns.length) return (
     <div className="p-10 text-center">
       <p className="text-3xl mb-2">📋</p>
@@ -187,6 +201,7 @@ function CampaignHistory({ campaigns, activities }) {
   const ended = campaigns.filter(c => !c.is_active);
 
   const CampaignCard = ({ c }) => {
+    const isExpanded = expandedId === c.id;
     const enrolled = c.volunteers_enrolled || 0;
     const needed = c.volunteers_needed || 0;
     const progress = needed > 0 ? Math.min(100, Math.round((enrolled / needed) * 100)) : 0;
@@ -194,22 +209,31 @@ function CampaignHistory({ campaigns, activities }) {
     const fundProgress = isFund && c.goal_amount > 0
       ? Math.min(100, Math.round(((c.collected_amount || 0) / c.goal_amount) * 100))
       : 0;
+    // Volunteers who participated in this campaign
+    const campVolunteers = activities.filter(a => a.campaign_id === c.id);
+    const uniqueVolunteers = [...new Map(campVolunteers.map(a => [a.user_email, a])).values()];
 
     return (
       <div className="bg-white border border-border rounded-2xl overflow-hidden shadow-sm">
         <div className={`h-1 ${c.is_active ? "bg-gradient-to-r from-primary to-accent" : "bg-muted"}`} />
-        <div className="p-4 space-y-3">
+
+        {/* Clickable header */}
+        <button
+          className="w-full p-4 text-left space-y-3 hover:bg-muted/20 transition-colors"
+          onClick={() => setExpandedId(isExpanded ? null : c.id)}
+        >
           <div className="flex items-start justify-between gap-2">
             <div className="flex items-center gap-2">
               <span className="text-lg">{isFund ? "💰" : "🤝"}</span>
               <h3 className="font-bold text-foreground text-sm leading-snug">{c.title}</h3>
             </div>
-            <span className={`text-[10px] px-2 py-0.5 rounded-full font-bold flex-shrink-0 ${c.is_active ? "bg-emerald-100 text-emerald-700" : "bg-muted text-muted-foreground"}`}>
-              {c.is_active ? "ACTIVE" : "ENDED"}
-            </span>
+            <div className="flex items-center gap-2 flex-shrink-0">
+              <span className={`text-[10px] px-2 py-0.5 rounded-full font-bold ${c.is_active ? "bg-emerald-100 text-emerald-700" : "bg-muted text-muted-foreground"}`}>
+                {c.is_active ? "ACTIVE" : "ENDED"}
+              </span>
+              {isExpanded ? <ChevronUp className="w-4 h-4 text-muted-foreground" /> : <ChevronDown className="w-4 h-4 text-muted-foreground" />}
+            </div>
           </div>
-
-          {c.description && <p className="text-xs text-muted-foreground leading-relaxed line-clamp-2">{c.description}</p>}
 
           <div className="flex flex-wrap gap-2">
             {c.location && (
@@ -222,32 +246,106 @@ function CampaignHistory({ campaigns, activities }) {
                 <Calendar className="w-3 h-3" /> {format(new Date(c.start_date), "MMM d, yyyy")}
               </span>
             )}
+            <span className="flex items-center gap-1 text-xs text-muted-foreground bg-muted/60 px-2 py-1 rounded-lg">
+              <Users className="w-3 h-3" /> {uniqueVolunteers.length} volunteers
+            </span>
           </div>
+        </button>
 
-          {!isFund && needed > 0 && (
-            <div>
-              <div className="flex justify-between text-xs mb-1">
-                <span className="text-muted-foreground font-medium">Volunteers</span>
-                <span className="font-bold text-foreground">{enrolled} / {needed}</span>
-              </div>
-              <div className="h-1.5 bg-muted rounded-full overflow-hidden">
-                <div className="h-full bg-gradient-to-r from-primary to-accent rounded-full transition-all" style={{ width: `${progress}%` }} />
-              </div>
-            </div>
-          )}
+        {/* Expanded details */}
+        {isExpanded && (
+          <div className="border-t border-border px-4 pb-4 space-y-4 pt-3">
+            {/* Full description */}
+            {c.description && (
+              <p className="text-xs text-foreground/80 leading-relaxed">{c.description}</p>
+            )}
 
-          {isFund && c.goal_amount > 0 && (
-            <div>
-              <div className="flex justify-between text-xs mb-1">
-                <span className="font-semibold text-primary">${(c.collected_amount || 0).toLocaleString()} raised</span>
-                <span className="text-muted-foreground">of ${c.goal_amount.toLocaleString()}</span>
-              </div>
-              <div className="h-1.5 bg-muted rounded-full overflow-hidden">
-                <div className="h-full bg-gradient-to-r from-amber-400 to-primary rounded-full transition-all" style={{ width: `${fundProgress}%` }} />
-              </div>
+            {/* Extra details grid */}
+            <div className="grid grid-cols-2 gap-2 text-xs">
+              {c.end_date && <Detail label="End Date" value={format(new Date(c.end_date), "MMM d, yyyy")} />}
+              {c.signup_deadline && <Detail label="Signup Deadline" value={format(new Date(c.signup_deadline), "MMM d, yyyy")} />}
+              {c.category && <Detail label="Category" value={c.category} />}
+              {c.type && <Detail label="Type" value={isFund ? "Fundraising" : "Volunteers"} />}
+              {(c.min_age || c.max_age) && <Detail label="Age Range" value={`${c.min_age || ""}–${c.max_age || ""} yrs`} />}
             </div>
-          )}
-        </div>
+
+            {/* Requirements */}
+            {c.requirements && (
+              <div className="bg-muted/40 rounded-xl px-3 py-2">
+                <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-wide mb-1">Requirements</p>
+                <p className="text-xs text-foreground/80 whitespace-pre-line">{c.requirements}</p>
+              </div>
+            )}
+
+            {/* Progress bars */}
+            {!isFund && needed > 0 && (
+              <div>
+                <div className="flex justify-between text-xs mb-1">
+                  <span className="text-muted-foreground font-medium">Volunteers</span>
+                  <span className="font-bold text-foreground">{enrolled} / {needed}</span>
+                </div>
+                <div className="h-1.5 bg-muted rounded-full overflow-hidden">
+                  <div className="h-full bg-gradient-to-r from-primary to-accent rounded-full" style={{ width: `${progress}%` }} />
+                </div>
+              </div>
+            )}
+            {isFund && c.goal_amount > 0 && (
+              <div>
+                <div className="flex justify-between text-xs mb-1">
+                  <span className="font-semibold text-primary">${(c.collected_amount || 0).toLocaleString()} raised</span>
+                  <span className="text-muted-foreground">of ${c.goal_amount.toLocaleString()}</span>
+                </div>
+                <div className="h-1.5 bg-muted rounded-full overflow-hidden">
+                  <div className="h-full bg-gradient-to-r from-amber-400 to-primary rounded-full" style={{ width: `${fundProgress}%` }} />
+                </div>
+              </div>
+            )}
+
+            {/* Volunteers who participated */}
+            {uniqueVolunteers.length > 0 && (
+              <div>
+                <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-wide mb-2">Participants ({uniqueVolunteers.length})</p>
+                <div className="space-y-2">
+                  {uniqueVolunteers.map(v => (
+                    <div key={v.user_email} className="flex items-center gap-2 bg-muted/40 rounded-xl px-3 py-2">
+                      <div className="w-6 h-6 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold text-[10px] flex-shrink-0">
+                        {v.user_email[0]?.toUpperCase()}
+                      </div>
+                      <p className="text-xs text-foreground font-medium truncate">{v.user_email}</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Action buttons */}
+            <div className="flex gap-2 pt-1">
+              {c.is_active && (
+                <Button size="sm" variant="outline" className="rounded-xl gap-1.5 text-xs text-muted-foreground border-border hover:bg-muted flex-1"
+                  disabled={endCampaign.isPending}
+                  onClick={() => endCampaign.mutate(c.id)}>
+                  <XCircle className="w-3.5 h-3.5" /> End Campaign
+                </Button>
+              )}
+              {confirmDelete === c.id ? (
+                <div className="flex gap-2 flex-1">
+                  <Button size="sm" className="rounded-xl gap-1 text-xs bg-red-600 hover:bg-red-700 text-white flex-1"
+                    disabled={deleteCampaign.isPending}
+                    onClick={() => deleteCampaign.mutate(c.id)}>
+                    {deleteCampaign.isPending ? "Deleting..." : "Confirm Delete"}
+                  </Button>
+                  <Button size="sm" variant="outline" className="rounded-xl text-xs"
+                    onClick={() => setConfirmDelete(null)}>Cancel</Button>
+                </div>
+              ) : (
+                <Button size="sm" variant="outline" className="rounded-xl gap-1.5 text-xs text-red-500 border-red-200 hover:bg-red-50 flex-1"
+                  onClick={() => setConfirmDelete(c.id)}>
+                  <Trash2 className="w-3.5 h-3.5" /> Delete
+                </Button>
+              )}
+            </div>
+          </div>
+        )}
       </div>
     );
   };
@@ -266,6 +364,15 @@ function CampaignHistory({ campaigns, activities }) {
           <div className="space-y-3">{ended.map(c => <CampaignCard key={c.id} c={c} />)}</div>
         </div>
       )}
+    </div>
+  );
+}
+
+function Detail({ label, value }) {
+  return (
+    <div className="bg-muted/40 rounded-xl px-3 py-2">
+      <p className="text-[10px] text-muted-foreground font-bold uppercase tracking-wide">{label}</p>
+      <p className="text-xs font-semibold text-foreground mt-0.5">{value}</p>
     </div>
   );
 }
