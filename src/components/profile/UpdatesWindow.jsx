@@ -25,6 +25,11 @@ export default function UpdatesWindow({ notifications }) {
     onSuccess: () => qc.invalidateQueries(["notifications"]),
   });
 
+  const deleteNotif = useMutation({
+    mutationFn: (id) => base44.entities.Notification.delete(id),
+    onSuccess: () => qc.invalidateQueries(["notifications"]),
+  });
+
   const unread = notifications.filter(n => !n.is_read).length;
 
   return (
