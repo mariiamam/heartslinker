@@ -127,11 +127,22 @@ export default function CampaignsSection({ campaigns, ngoId }) {
               </div>
             </div>
 
-            <Input placeholder="Location (e.g. Beirut, Gaza)" value={form.location} onChange={e => setForm({ ...form, location: e.target.value })} className="rounded-xl" />
-            <Input placeholder="Short description" value={form.description} onChange={e => setForm({ ...form, description: e.target.value })} className="rounded-xl" />
-            <Input type="date" placeholder="Start date" value={form.start_date} onChange={e => setForm({ ...form, start_date: e.target.value })} className="rounded-xl" />
-            <Input type="date" placeholder="End date" value={form.end_date} onChange={e => setForm({ ...form, end_date: e.target.value })} className="rounded-xl" />
-            <Input type="date" placeholder="Sign-up deadline" value={form.signup_deadline} onChange={e => setForm({ ...form, signup_deadline: e.target.value })} className="rounded-xl md:col-span-2" />
+            <div className="relative">
+              <Input placeholder="Location (e.g. Beirut, Gaza)" value={form.location} onChange={e => setForm({ ...form, location: e.target.value })} className="rounded-xl" />
+              <span className="absolute top-2 right-3 text-red-500 text-xs font-bold">*</span>
+            </div>
+            <div className="relative">
+              <Input placeholder="Short description" value={form.description} onChange={e => setForm({ ...form, description: e.target.value })} className="rounded-xl" />
+              <span className="absolute top-2 right-3 text-red-500 text-xs font-bold">*</span>
+            </div>
+            <div>
+              <label className="text-xs text-muted-foreground mb-1 block font-medium">From</label>
+              <Input type="date" value={form.start_date} onChange={e => setForm({ ...form, start_date: e.target.value })} className="rounded-xl" />
+            </div>
+            <div>
+              <label className="text-xs text-muted-foreground mb-1 block font-medium">To</label>
+              <Input type="date" value={form.end_date} onChange={e => setForm({ ...form, end_date: e.target.value })} className="rounded-xl" />
+            </div>
 
             {form.type === "volunteers" && (
               <>
