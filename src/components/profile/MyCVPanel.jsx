@@ -3,7 +3,11 @@ import { base44 } from "@/api/base44Client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Upload, CheckCircle, BadgeCheck, FileText, ChevronLeft, ChevronRight, Plus, Trash2 } from "lucide-react";
+import {
+  Upload, CheckCircle, BadgeCheck, FileText, ChevronLeft, ChevronRight,
+  Plus, Trash2, Pencil, MapPin, Phone, Mail, Calendar, Star, Globe,
+  Clock, Car, AlertCircle, Eye
+} from "lucide-react";
 
 const STEPS = [
   { label: "Basic Info", icon: "👤" },
@@ -48,8 +52,255 @@ function calcAge(birthDate) {
   return age > 0 ? age : null;
 }
 
+// ─────────────────────────────────────────────
+// CV VIEW (read-only, organized display)
+// ─────────────────────────────────────────────
+function CVView({ cv, user, activities, onEdit }) {
+  const age = calcAge(cv?.cv_birth_date);
+  const verifiedActivities = (activities || []).filter(a => a.ngo_name);
+  const allSkills = [...(cv?.cv_primary_skills || []), ...(cv?.cv_other_skills || [])];
+  if (cv?.cv_custom_skill) allSkills.push(cv.cv_custom_skill);
+
+  const hasAnyData = cv?.cv_full_name || cv?.cv_city || allSkills.length > 0;
+
+  if (!hasAnyData) {
+    return (
+      <div className="bg-white rounded-2xl border border-border shadow-sm overflow-hidden">
+        <div className="h-1.5 bg-gradient-to-r from-primary to-accent" />
+        <div className="p-10 text-center space-y-3">
+          <div className="w-14 h-14 rounded-2xl bg-orange-100 flex items-center justify-center mx-auto">
+            <FileText className="w-7 h-7 text-orange-400" />
+          </div>
+          <p className="font-semibold text-foreground">No CV yet</p>
+          <p className="text-sm text-muted-foreground max-w-xs mx-auto">Fill in your CV so NGOs can review your profile when you apply to campaigns.</p>
+          <Button className="rounded-xl bg-primary hover:bg-primary/90 mt-2 gap-2" onClick={onEdit}>
+            <Pencil className="w-4 h-4" /> Create My CV
+          </Button>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="bg-white rounded-2xl border border-border shadow-sm overflow-hidden">
+      <div className="h-1.5 bg-gradient-to-r from-primary to-accent" />
+
+      {/* CV Header */}
+      <div className="p-6 border-b border-border">
+        <div className="flex items-start justify-between gap-4">
+          <div>
+            <h2 className="text-xl font-bold text-foreground">{cv?.cv_full_name || user?.full_name}</h2>
+            <div className="flex flex-wrap items-center gap-3 mt-2 text-sm text-muted-foreground">
+              {age && <span className="flex items-center gap-1"><Calendar className="w-3.5 h-3.5" /> {age} years old</span>}
+              {(cv?.cv_city || cv?.cv_country) && (
+                <span className="flex items-center gap-1"><MapPin className="w-3.5 h-3.5" /> {[cv.cv_city, cv.cv_country].filter(Boolean).join(", ")}</span>
+              )}
+              {cv?.cv_phone && <span className="flex items-center gap-1"><Phone className="w-3.5 h-3.5" /> {cv.cv_phone}</span>}
+              {user?.email && <span className="flex items-center gap-1"><Mail className="w-3.5 h-3.5" /> {user.email}</span>}
+            </div>
+            {cv?.cv_address && <p className="text-xs text-muted-foreground mt-1">{cv.cv_address}</p>}
+          </div>
+          <div className="flex flex-col gap-2 items-end flex-shrink-0">
+            {cv?.uploaded_cv_url && (
+              <a href={cv.uploaded_cv_url} target="_blank" rel="noopener noreferrer"
+                className="flex items-center gap-1.5 text-xs text-primary font-semibold hover:underline">
+                <Eye className="w-3.5 h-3.5" /> View uploaded CV
+              </a>
+            )}
+            <div className="flex gap-1.5">
+              {cv?.cv_public && <span className="text-[10px] font-bold bg-green-100 text-green-700 px-2 py-0.5 rounded-full">Public</span>}
+              {cv?.cv_contactable && <span className="text-[10px] font-bold bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full">Open to contact</span>}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div className="p-6 space-y-6">
+
+        {/* About */}
+        {cv?.bio && (
+          <CVSection icon="💬" title="About Me">
+            <p className="text-sm text-foreground/80 leading-relaxed">{cv.bio}</p>
+          </CVSection>
+        )}
+
+        {/* Skills */}
+        {allSkills.length > 0 && (
+          <CVSection icon="🛠" title="Skills">
+            {cv?.cv_primary_skills?.length > 0 && (
+              <div className="mb-2">
+                <p className="text-xs text-muted-foreground font-medium mb-1.5">Primary Skills</p>
+                <div className="flex flex-wrap gap-1.5">
+                  {cv.cv_primary_skills.map(s => (
+                    <span key={s} className="text-xs bg-primary/10 text-primary font-semibold px-2.5 py-1 rounded-full">{s}</span>
+                  ))}
+                </div>
+              </div>
+            )}
+            {(cv?.cv_other_skills?.length > 0 || cv?.cv_custom_skill) && (
+              <div>
+                <p className="text-xs text-muted-foreground font-medium mb-1.5">Other Skills</p>
+                <div className="flex flex-wrap gap-1.5">
+                  {(cv?.cv_other_skills || []).map(s => (
+                    <span key={s} className="text-xs bg-muted text-foreground/70 font-medium px-2.5 py-1 rounded-full">{s}</span>
+                  ))}
+                  {cv?.cv_custom_skill && (
+                    <span className="text-xs bg-muted text-foreground/70 font-medium px-2.5 py-1 rounded-full">{cv.cv_custom_skill}</span>
+                  )}
+                </div>
+              </div>
+            )}
+          </CVSection>
+        )}
+
+        {/* Languages */}
+        {cv?.cv_languages?.filter(l => l.language).length > 0 && (
+          <CVSection icon="🌐" title="Languages">
+            <div className="flex flex-wrap gap-3">
+              {cv.cv_languages.filter(l => l.language).map((l, i) => (
+                <div key={i} className="flex items-center gap-2 bg-muted/40 rounded-xl px-3 py-2">
+                  <Globe className="w-3.5 h-3.5 text-muted-foreground" />
+                  <span className="text-sm font-semibold text-foreground">{l.language}</span>
+                  <span className="text-xs text-muted-foreground border border-border rounded-full px-2 py-0.5">{l.level}</span>
+                </div>
+              ))}
+            </div>
+          </CVSection>
+        )}
+
+        {/* Experience */}
+        {(cv?.cv_experience?.filter(e => e.org || e.role).length > 0 || verifiedActivities.length > 0) && (
+          <CVSection icon="📋" title="Volunteering Experience">
+            <div className="space-y-3">
+              {(cv?.cv_experience || []).filter(e => e.org || e.role).map((exp, i) => (
+                <div key={i} className="border-l-2 border-primary/30 pl-4 py-1">
+                  <p className="text-sm font-semibold text-foreground">{exp.role || "Volunteer"}</p>
+                  <p className="text-xs text-primary font-medium">{exp.org}</p>
+                  {exp.duration && <p className="text-xs text-muted-foreground mt-0.5">{exp.duration}</p>}
+                </div>
+              ))}
+              {verifiedActivities.map(act => (
+                <div key={act.id} className="border-l-2 border-primary pl-4 py-1 bg-orange-50/50 rounded-r-xl">
+                  <div className="flex items-center gap-2">
+                    <p className="text-sm font-semibold text-foreground">{act.title}</p>
+                    <span className="inline-flex items-center gap-0.5 bg-primary text-white text-[9px] font-bold px-1.5 py-0.5 rounded-full">
+                      <BadgeCheck className="w-2.5 h-2.5" /> HL Verified
+                    </span>
+                  </div>
+                  <p className="text-xs text-primary font-medium">{act.ngo_name}</p>
+                  {act.start_date && <p className="text-xs text-muted-foreground mt-0.5">{act.start_date}</p>}
+                </div>
+              ))}
+            </div>
+          </CVSection>
+        )}
+
+        {/* Availability */}
+        {(cv?.cv_availability || cv?.cv_available_days?.length > 0 || cv?.cv_start_date) && (
+          <CVSection icon="📅" title="Availability">
+            <div className="flex flex-wrap gap-3">
+              {cv?.cv_availability && (
+                <InfoPill icon={<Clock className="w-3.5 h-3.5" />} text={cv.cv_availability} />
+              )}
+              {cv?.cv_start_date && (
+                <InfoPill icon={<Calendar className="w-3.5 h-3.5" />} text={`Available from ${cv.cv_start_date}`} />
+              )}
+            </div>
+            {cv?.cv_available_days?.length > 0 && (
+              <div className="flex flex-wrap gap-1.5 mt-2">
+                {cv.cv_available_days.map(d => (
+                  <span key={d} className="text-xs bg-accent/20 text-accent-foreground font-medium px-2.5 py-1 rounded-full">{d}</span>
+                ))}
+              </div>
+            )}
+          </CVSection>
+        )}
+
+        {/* Preferred Causes */}
+        {cv?.cv_preferred_causes?.length > 0 && (
+          <CVSection icon="❤️" title="Preferred Causes">
+            <div className="flex flex-wrap gap-1.5">
+              {cv.cv_preferred_causes.map(c => (
+                <span key={c} className="text-xs bg-rose-50 text-rose-600 font-semibold px-2.5 py-1 rounded-full border border-rose-200">{c}</span>
+              ))}
+            </div>
+          </CVSection>
+        )}
+
+        {/* Certifications */}
+        {cv?.cv_certifications && (
+          <CVSection icon="🏅" title="Certifications & Qualifications">
+            <p className="text-sm text-foreground/80">{cv.cv_certifications}</p>
+          </CVSection>
+        )}
+
+        {/* Transport */}
+        {(cv?.cv_has_license || cv?.cv_has_car || cv?.cv_travel) && (
+          <CVSection icon="🚗" title="Transportation & Mobility">
+            <div className="flex flex-wrap gap-3">
+              {cv?.cv_has_license && <InfoPill icon={<Star className="w-3.5 h-3.5" />} text="Driver's License" />}
+              {cv?.cv_has_car && <InfoPill icon={<Car className="w-3.5 h-3.5" />} text="Own a Car" />}
+              {cv?.cv_travel && <InfoPill icon={<Globe className="w-3.5 h-3.5" />} text={`Travel: ${cv.cv_travel}`} />}
+            </div>
+          </CVSection>
+        )}
+
+        {/* Emergency Contact */}
+        {(cv?.cv_emergency_name || cv?.cv_emergency_phone) && (
+          <CVSection icon="🆘" title="Emergency Contact">
+            <div className="bg-red-50 border border-red-100 rounded-xl px-4 py-3 flex flex-wrap gap-4">
+              {cv?.cv_emergency_name && (
+                <span className="flex items-center gap-1.5 text-sm text-foreground font-medium">
+                  <AlertCircle className="w-4 h-4 text-red-400" /> {cv.cv_emergency_name}
+                </span>
+              )}
+              {cv?.cv_emergency_phone && (
+                <span className="flex items-center gap-1.5 text-sm text-muted-foreground">
+                  <Phone className="w-3.5 h-3.5" /> {cv.cv_emergency_phone}
+                </span>
+              )}
+            </div>
+          </CVSection>
+        )}
+      </div>
+
+      {/* Edit button */}
+      <div className="px-6 py-4 border-t border-border flex justify-end">
+        <Button variant="outline" className="rounded-xl gap-2" onClick={onEdit}>
+          <Pencil className="w-4 h-4" /> Edit CV
+        </Button>
+      </div>
+    </div>
+  );
+}
+
+function CVSection({ icon, title, children }) {
+  return (
+    <div>
+      <div className="flex items-center gap-2 mb-2.5">
+        <span className="text-base">{icon}</span>
+        <h3 className="text-xs font-bold text-foreground uppercase tracking-wide">{title}</h3>
+        <div className="flex-1 h-px bg-border" />
+      </div>
+      {children}
+    </div>
+  );
+}
+
+function InfoPill({ icon, text }) {
+  return (
+    <div className="flex items-center gap-1.5 bg-muted/40 rounded-xl px-3 py-1.5 text-xs font-medium text-foreground">
+      <span className="text-muted-foreground">{icon}</span> {text}
+    </div>
+  );
+}
+
+// ─────────────────────────────────────────────
+// MAIN PANEL — toggles between View & Edit
+// ─────────────────────────────────────────────
 export default function MyCVPanel({ user, activities }) {
   const qc = useQueryClient();
+  const [mode, setMode] = useState("view"); // "view" | "edit"
   const [step, setStep] = useState(0);
   const [form, setForm] = useState(EMPTY_FORM);
   const [uploading, setUploading] = useState(false);
@@ -104,6 +355,7 @@ export default function MyCVPanel({ user, activities }) {
       qc.invalidateQueries(["my-cv"]);
       qc.invalidateQueries(["impact-profile"]);
       setSaved(true);
+      setMode("view");
       setTimeout(() => setSaved(false), 4000);
     },
   });
@@ -158,20 +410,33 @@ export default function MyCVPanel({ user, activities }) {
   const verifiedActivities = (activities || []).filter(a => a.ngo_name);
   const age = calcAge(form.birth_date);
 
+  // ── VIEW MODE ──
+  if (mode === "view") {
+    return <CVView cv={cv} user={user} activities={activities} onEdit={() => { setStep(0); setMode("edit"); }} />;
+  }
+
+  // ── EDIT MODE ──
   return (
     <div className="bg-white rounded-2xl border border-border shadow-sm overflow-hidden">
       <div className="h-1.5 bg-gradient-to-r from-primary to-accent" />
 
       {/* Header */}
       <div className="px-5 pt-5 pb-3 border-b border-border">
-        <div className="flex items-center gap-3 mb-4">
-          <div className="w-10 h-10 rounded-xl bg-orange-100 flex items-center justify-center flex-shrink-0">
-            <FileText className="w-5 h-5 text-orange-600" />
+        <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-xl bg-orange-100 flex items-center justify-center flex-shrink-0">
+              <FileText className="w-5 h-5 text-orange-600" />
+            </div>
+            <div>
+              <h2 className="font-bold text-foreground text-base">Edit My CV</h2>
+              <p className="text-xs text-muted-foreground">Shared with NGOs when you join a campaign</p>
+            </div>
           </div>
-          <div>
-            <h2 className="font-bold text-foreground text-base">My CV</h2>
-            <p className="text-xs text-muted-foreground">Shared with NGOs when you join a campaign</p>
-          </div>
+          {cv && (
+            <Button variant="ghost" size="sm" className="rounded-xl gap-1.5 text-muted-foreground" onClick={() => setMode("view")}>
+              <Eye className="w-4 h-4" /> View CV
+            </Button>
+          )}
         </div>
 
         {/* Upload shortcut */}
@@ -180,7 +445,11 @@ export default function MyCVPanel({ user, activities }) {
           <label className="cursor-pointer">
             <input type="file" accept=".pdf,.doc,.docx" className="hidden" onChange={handleUpload} />
             <span className="flex items-center gap-1.5 text-xs font-semibold text-primary hover:underline">
-              {uploading ? <><div className="w-3 h-3 border-2 border-primary/30 border-t-primary rounded-full animate-spin" /> Uploading...</> : form.uploaded_cv_url ? <><CheckCircle className="w-3.5 h-3.5 text-green-500" /> Uploaded ✓</> : <><Upload className="w-3.5 h-3.5" /> Upload PDF / Word</>}
+              {uploading
+                ? <><div className="w-3 h-3 border-2 border-primary/30 border-t-primary rounded-full animate-spin" /> Uploading...</>
+                : form.uploaded_cv_url
+                  ? <><CheckCircle className="w-3.5 h-3.5 text-green-500" /> Uploaded ✓</>
+                  : <><Upload className="w-3.5 h-3.5" /> Upload PDF / Word</>}
             </span>
           </label>
         </div>
@@ -198,7 +467,7 @@ export default function MyCVPanel({ user, activities }) {
 
       <div className="p-5 space-y-4 min-h-[320px]">
 
-        {/* ─── STEP 0: Basic Info ─── */}
+        {/* STEP 0: Basic Info */}
         {step === 0 && (
           <div className="space-y-3">
             <SectionTitle>Basic Information</SectionTitle>
@@ -210,7 +479,7 @@ export default function MyCVPanel({ user, activities }) {
                 <Input className="rounded-xl" placeholder="+1 234 567 8900" value={form.phone} onChange={e => set("phone", e.target.value)} />
               </Field>
               <Field label="Email">
-                <Input className="rounded-xl" value={user?.email || ""} readOnly className="rounded-xl opacity-60" />
+                <Input className="rounded-xl opacity-60" value={user?.email || ""} readOnly />
               </Field>
               <Field label="Date of Birth">
                 <Input className="rounded-xl" type="date" value={form.birth_date} onChange={e => set("birth_date", e.target.value)} />
@@ -227,14 +496,14 @@ export default function MyCVPanel({ user, activities }) {
               </Field>
               <div className="md:col-span-2">
                 <Field label="Address / Region (optional)">
-                  <Input className="rounded-xl" placeholder="e.g. Hamra district, or nearby airport" value={form.address} onChange={e => set("address", e.target.value)} />
+                  <Input className="rounded-xl" placeholder="e.g. Hamra district" value={form.address} onChange={e => set("address", e.target.value)} />
                 </Field>
               </div>
             </div>
           </div>
         )}
 
-        {/* ─── STEP 1: Skills & Languages ─── */}
+        {/* STEP 1: Skills & Languages */}
         {step === 1 && (
           <div className="space-y-4">
             <SectionTitle>Primary Skills <span className="font-normal text-muted-foreground text-xs ml-1">(choose up to 5)</span></SectionTitle>
@@ -247,7 +516,6 @@ export default function MyCVPanel({ user, activities }) {
                   }}>{s}</ToggleChip>
               ))}
             </div>
-
             <SectionTitle>Other Skills</SectionTitle>
             <div className="flex flex-wrap gap-2">
               {OTHER_SKILLS.map(s => (
@@ -257,24 +525,15 @@ export default function MyCVPanel({ user, activities }) {
             <Field label="Other (write your own)">
               <Input className="rounded-xl" placeholder="e.g. Sign language, Plumbing..." value={form.custom_skill} onChange={e => set("custom_skill", e.target.value)} />
             </Field>
-
             <SectionTitle className="pt-1">Languages</SectionTitle>
             <div className="space-y-2">
               {form.cv_languages.map((lang, i) => (
                 <div key={i} className="flex gap-2 items-center">
                   <Input className="rounded-xl flex-1" placeholder="Language (e.g. Arabic)" value={lang.language}
-                    onChange={e => {
-                      const updated = [...form.cv_languages];
-                      updated[i] = { ...updated[i], language: e.target.value };
-                      set("cv_languages", updated);
-                    }} />
+                    onChange={e => { const u = [...form.cv_languages]; u[i] = { ...u[i], language: e.target.value }; set("cv_languages", u); }} />
                   <select className="text-sm border border-input rounded-xl px-3 py-2 bg-white focus:outline-none focus:ring-1 focus:ring-ring"
                     value={lang.level}
-                    onChange={e => {
-                      const updated = [...form.cv_languages];
-                      updated[i] = { ...updated[i], level: e.target.value };
-                      set("cv_languages", updated);
-                    }}>
+                    onChange={e => { const u = [...form.cv_languages]; u[i] = { ...u[i], level: e.target.value }; set("cv_languages", u); }}>
                     {LANG_LEVELS.map(l => <option key={l}>{l}</option>)}
                   </select>
                   {form.cv_languages.length > 1 && (
@@ -292,12 +551,11 @@ export default function MyCVPanel({ user, activities }) {
           </div>
         )}
 
-        {/* ─── STEP 2: Experience ─── */}
+        {/* STEP 2: Experience */}
         {step === 2 && (
           <div className="space-y-4">
             <SectionTitle>Previous Volunteering Experience</SectionTitle>
             <p className="text-xs text-muted-foreground">Add any volunteering or relevant work, even informal.</p>
-
             <div className="space-y-3">
               {form.experience.map((exp, i) => (
                 <div key={i} className="bg-muted/30 rounded-2xl p-4 space-y-2">
@@ -322,8 +580,6 @@ export default function MyCVPanel({ user, activities }) {
                 <Plus className="w-3.5 h-3.5" /> Add another experience
               </button>
             </div>
-
-            {/* HeartsLinker verified */}
             {verifiedActivities.length > 0 && (
               <div className="pt-2">
                 <p className="text-xs font-semibold text-foreground mb-2">✓ Verified via HeartsLinker</p>
@@ -344,13 +600,12 @@ export default function MyCVPanel({ user, activities }) {
                     </div>
                   ))}
                 </div>
-                <p className="text-[10px] text-muted-foreground mt-1.5 italic">These are automatically included and shown with an HL badge.</p>
               </div>
             )}
           </div>
         )}
 
-        {/* ─── STEP 3: Availability ─── */}
+        {/* STEP 3: Availability */}
         {step === 3 && (
           <div className="space-y-4">
             <SectionTitle>Availability</SectionTitle>
@@ -361,7 +616,6 @@ export default function MyCVPanel({ user, activities }) {
                 ))}
               </div>
             </Field>
-
             <Field label="Available days">
               <div className="flex flex-wrap gap-2">
                 {DAYS_OPTIONS.map(d => (
@@ -369,11 +623,9 @@ export default function MyCVPanel({ user, activities }) {
                 ))}
               </div>
             </Field>
-
             <Field label="Earliest start date">
               <Input className="rounded-xl max-w-xs" type="date" value={form.start_date} onChange={e => set("start_date", e.target.value)} />
             </Field>
-
             <SectionTitle className="pt-1">Preferred Causes</SectionTitle>
             <div className="flex flex-wrap gap-2">
               {CAUSES.map(c => (
@@ -383,7 +635,7 @@ export default function MyCVPanel({ user, activities }) {
           </div>
         )}
 
-        {/* ─── STEP 4: Additional Info ─── */}
+        {/* STEP 4: Additional Info */}
         {step === 4 && (
           <div className="space-y-4">
             <SectionTitle>About Me</SectionTitle>
@@ -394,10 +646,8 @@ export default function MyCVPanel({ user, activities }) {
               value={form.bio}
               onChange={e => set("bio", e.target.value)}
             />
-
             <SectionTitle>Certifications / Qualifications</SectionTitle>
             <Input className="rounded-xl" placeholder="e.g. First Aid, Teaching Certificate, Driver's License Class B..." value={form.certifications} onChange={e => set("certifications", e.target.value)} />
-
             <SectionTitle>Transportation & Mobility</SectionTitle>
             <div className="flex flex-wrap gap-4">
               <BoolToggle label="Driver's License" value={form.has_license} onChange={v => set("has_license", v)} />
@@ -410,7 +660,6 @@ export default function MyCVPanel({ user, activities }) {
                 ))}
               </div>
             </Field>
-
             <SectionTitle>Emergency Contact <span className="font-normal text-muted-foreground text-xs ml-1">(optional)</span></SectionTitle>
             <div className="grid md:grid-cols-2 gap-3">
               <Field label="Contact Name">
@@ -420,7 +669,6 @@ export default function MyCVPanel({ user, activities }) {
                 <Input className="rounded-xl" placeholder="+1 234 567 8900" value={form.emergency_phone} onChange={e => set("emergency_phone", e.target.value)} />
               </Field>
             </div>
-
             <SectionTitle>Profile Visibility</SectionTitle>
             <div className="flex flex-wrap gap-4">
               <BoolToggle label="Make my profile public" value={form.cv_public} onChange={v => set("cv_public", v)} />
@@ -429,10 +677,9 @@ export default function MyCVPanel({ user, activities }) {
           </div>
         )}
 
-        {/* ─── STEP 5: Consent & Save ─── */}
+        {/* STEP 5: Consent & Save */}
         {step === 5 && (
           <div className="space-y-4">
-            {/* Summary preview */}
             <div className="bg-muted/30 rounded-2xl p-4 space-y-1.5 text-xs text-foreground/80">
               <p className="font-bold text-foreground text-sm mb-2">CV Summary</p>
               {form.full_name && <p>👤 {form.full_name}{age ? `, ${age} yrs` : ""}</p>}
@@ -461,7 +708,7 @@ export default function MyCVPanel({ user, activities }) {
             <div className="flex items-center gap-3 justify-end">
               {saved && (
                 <span className="flex items-center gap-1.5 text-sm text-green-600 font-medium">
-                  <CheckCircle className="w-4 h-4" /> CV saved successfully!
+                  <CheckCircle className="w-4 h-4" /> Saved!
                 </span>
               )}
               <Button className="rounded-xl bg-primary hover:bg-primary/90 px-6"
@@ -491,7 +738,6 @@ export default function MyCVPanel({ user, activities }) {
 function SectionTitle({ children, className = "" }) {
   return <p className={`text-xs font-semibold text-foreground uppercase tracking-wide ${className}`}>{children}</p>;
 }
-
 function Field({ label, children }) {
   return (
     <div>
@@ -500,7 +746,6 @@ function Field({ label, children }) {
     </div>
   );
 }
-
 function ToggleChip({ active, onClick, children }) {
   return (
     <button type="button" onClick={onClick}
@@ -509,13 +754,12 @@ function ToggleChip({ active, onClick, children }) {
     </button>
   );
 }
-
 function BoolToggle({ label, value, onChange }) {
   return (
     <div className="flex items-center gap-2">
       <button type="button" onClick={() => onChange(!value)}
         className={`w-8 h-4 rounded-full transition-colors flex-shrink-0 relative ${value ? "bg-primary" : "bg-muted"}`}>
-        <span className={`absolute top-0.5 w-3 h-3 rounded-full bg-white shadow transition-all ${value ? "left-4.5 left-[18px]" : "left-0.5"}`} />
+        <span className={`absolute top-0.5 w-3 h-3 rounded-full bg-white shadow transition-all ${value ? "left-[18px]" : "left-0.5"}`} />
       </button>
       <span className="text-xs text-foreground font-medium">{label}</span>
     </div>
