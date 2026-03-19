@@ -23,8 +23,11 @@ export default function CampaignsSection({ campaigns, ngoId }) {
       ...form,
       ngo_id: ngoId,
       volunteers_needed: form.volunteers_needed ? Number(form.volunteers_needed) : undefined,
+      volunteers_enrolled: form.volunteers_enrolled ? Number(form.volunteers_enrolled) : 0,
       goal_amount: form.goal_amount ? Number(form.goal_amount) : undefined,
       collected_amount: form.collected_amount ? Number(form.collected_amount) : 0,
+      min_age: form.min_age ? Number(form.min_age) : undefined,
+      max_age: form.max_age ? Number(form.max_age) : undefined,
       is_active: true,
     });
   };
