@@ -377,28 +377,112 @@ function Detail({ label, value }) {
   );
 }
 
-function VolunteerBook({ activities, hourEntries }) {
-  const volunteers = [...new Map(activities.map(a => [a.user_email, a])).values()];
+function VolunteerBook({ activities, hourEntries, ngo }) {
+  const qc = useQueryClient();
+  const [showForm, setShowForm] = useState(false);
+  const [form, setForm] = useState({ name: "", email: "", phone: "", title: "", cause: "", start_date: "", hours: "", note: "" });
 
-  if (!volunteers.length) return (
-    <div className="p-8 text-center text-muted-foreground text-sm">No volunteers yet.</div>
-  );
+  const addVolunteer = useMutation({
+    mutationFn: async () => {
+      const activity = await base44.entities.Activity.create({
+        user_email: form.email,
+        ngo_id: ngo?.id,
+        ngo_name: ngo?.name || "",
+        title: form.title || "Manual Entry",
+        cause: form.cause,
+        start_date: form.start_date || new Date().toISOString().split("T")[0],
+        status: "in_process",
+        type: "volunteer",
+        description: [form.name && `Name: ${form.name}`, form.phone && `Phone: ${form.phone}`, form.note].filter(Boolean).join(" · "),
+        is_visible: true,
+      });
+      // If hours provided, create an approved HourEntry directly
+      if (form.hours && Number(form.hours) > 0) {
+        await base44.entities.HourEntry.create({
+          activity_id: activity.id,
+          user_email: form.email,
+          date: form.start_date || new Date().toISOString().split("T")[0],
+          hours: Number(form.hours),
+          submitted_by: "ngo",
+          status: "approved",
+          note: "Added manually by NGO",
+        });
+      }
+    },
+    onSuccess: () => {
+      qc.invalidateQueries(["ngo-activities"]);
+      qc.invalidateQueries(["hour-entries"]);
+      setShowForm(false);
+      setForm({ name: "", email: "", phone: "", title: "", cause: "", start_date: "", hours: "", note: "" });
+    },
+  });
+
+  const volunteers = [...new Map(activities.map(a => [a.user_email, a])).values()];
 
   return (
     <div className="p-5 space-y-4">
+      {/* Add Volunteer Button */}
+      <Button
+        size="sm"
+        className="w-full rounded-xl bg-primary hover:bg-primary/90 gap-1.5 text-xs"
+        onClick={() => setShowForm(v => !v)}
+      >
+        <UserPlus className="w-3.5 h-3.5" /> {showForm ? "Cancel" : "Add Volunteer Manually"}
+      </Button>
+
+      {/* Add Form */}
+      {showForm && (
+        <div className="bg-muted/30 border border-border rounded-2xl p-4 space-y-3">
+          <p className="text-xs font-bold text-foreground uppercase tracking-wide">Volunteer Info</p>
+          <div className="space-y-2">
+            <Input placeholder="Full name" value={form.name} onChange={e => setForm({ ...form, name: e.target.value })} className="rounded-xl text-sm h-8" />
+            <Input placeholder="Email address *" value={form.email} onChange={e => setForm({ ...form, email: e.target.value })} className="rounded-xl text-sm h-8" />
+            <Input placeholder="Phone number" value={form.phone} onChange={e => setForm({ ...form, phone: e.target.value })} className="rounded-xl text-sm h-8" />
+            <Input placeholder="Activity / role title" value={form.title} onChange={e => setForm({ ...form, title: e.target.value })} className="rounded-xl text-sm h-8" />
+            <Input placeholder="Cause (e.g. Education, Health)" value={form.cause} onChange={e => setForm({ ...form, cause: e.target.value })} className="rounded-xl text-sm h-8" />
+            <div className="grid grid-cols-2 gap-2">
+              <div>
+                <p className="text-[10px] text-muted-foreground mb-1">Start Date</p>
+                <Input type="date" value={form.start_date} onChange={e => setForm({ ...form, start_date: e.target.value })} className="rounded-xl text-sm h-8" />
+              </div>
+              <div>
+                <p className="text-[10px] text-muted-foreground mb-1">Hours (approved)</p>
+                <Input type="number" placeholder="e.g. 10" value={form.hours} onChange={e => setForm({ ...form, hours: e.target.value })} className="rounded-xl text-sm h-8" />
+              </div>
+            </div>
+            <textarea placeholder="Notes (optional)" value={form.note} onChange={e => setForm({ ...form, note: e.target.value })}
+              rows={2} className="w-full text-sm border border-input rounded-xl px-3 py-2 resize-none focus:outline-none focus:ring-1 focus:ring-ring" />
+          </div>
+          <Button size="sm" className="w-full rounded-xl bg-primary hover:bg-primary/90 text-xs"
+            disabled={!form.email || addVolunteer.isPending}
+            onClick={() => addVolunteer.mutate()}>
+            {addVolunteer.isPending ? "Adding..." : "Add to Volunteer Book"}
+          </Button>
+        </div>
+      )}
+
+      {/* Volunteer List */}
+      {volunteers.length === 0 && !showForm && (
+        <div className="py-8 text-center text-muted-foreground text-sm">No volunteers yet.</div>
+      )}
+
       {volunteers.map(v => {
         const myActivities = activities.filter(a => a.user_email === v.user_email);
         const myHours = hourEntries.filter(h => h.user_email === v.user_email && h.status === "approved")
           .reduce((s, h) => s + (h.hours || 0), 0);
+        // Extract name from description if manually added
+        const nameMatch = myActivities[0]?.description?.match(/Name:\s*([^·]+)/);
+        const displayName = nameMatch ? nameMatch[1].trim() : null;
 
         return (
           <div key={v.user_email} className="border border-border rounded-2xl p-4">
             <div className="flex items-center gap-3 mb-3">
               <div className="w-9 h-9 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold text-sm flex-shrink-0">
-                {v.user_email?.[0]?.toUpperCase()}
+                {(displayName || v.user_email)?.[0]?.toUpperCase()}
               </div>
               <div>
-                <p className="font-semibold text-foreground text-sm">{v.user_email}</p>
+                {displayName && <p className="font-semibold text-foreground text-sm">{displayName}</p>}
+                <p className={`${displayName ? "text-xs text-muted-foreground" : "font-semibold text-foreground text-sm"}`}>{v.user_email}</p>
                 <p className="text-xs text-muted-foreground">{myActivities.length} activities · {myHours}h approved</p>
               </div>
             </div>
