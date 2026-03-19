@@ -69,6 +69,9 @@ export default function UpdatesWindow({ notifications }) {
                       </button>
                     )}
                     {n.reshared && <span className="text-xs text-green-600 font-medium">✓ Reshared</span>}
+                    <button onClick={() => deleteNotif.mutate(n.id)} className="text-xs text-muted-foreground hover:text-destructive transition-colors" title="Delete">
+                      <Trash2 className="w-3 h-3" />
+                    </button>
                   </div>
                 </div>
               </div>
