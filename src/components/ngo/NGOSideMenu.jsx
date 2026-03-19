@@ -768,23 +768,28 @@ function ParticipationRequests({ requests, campaigns, ngo, qc }) {
           <p className="text-xs font-bold text-muted-foreground uppercase tracking-widest mb-3">Reviewed ({reviewed.length})</p>
           <div className="space-y-2">
             {reviewed.map(r => {
-              const nameMatch = r.message?.match(/Name:\s*(.+)/);
-              const volunteerName = nameMatch ? nameMatch[1].trim() : r.user_email;
-              return (
-                <div key={r.id} className="flex items-center gap-3 bg-white border border-border rounded-2xl px-4 py-3">
-                  <div className="w-7 h-7 rounded-full bg-muted flex items-center justify-center text-muted-foreground font-bold text-xs flex-shrink-0">
-                    {volunteerName[0]?.toUpperCase()}
+                const nameMatch = r.message?.match(/Name:\s*(.+)/);
+                const volunteerName = nameMatch ? nameMatch[1].trim() : r.user_email;
+                return (
+                  <div key={r.id} className="flex items-center gap-3 bg-white border border-border rounded-2xl px-4 py-3">
+                    <div className="w-7 h-7 rounded-full bg-muted flex items-center justify-center text-muted-foreground font-bold text-xs flex-shrink-0">
+                      {volunteerName[0]?.toUpperCase()}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-semibold text-foreground truncate">{volunteerName}</p>
+                      <p className="text-xs text-muted-foreground truncate">{r.campaign_title || "Campaign"}</p>
+                      {r.reviewed_at && (
+                        <p className="text-[11px] text-muted-foreground mt-0.5">
+                          {r.status === "accepted" ? "✓ Accepted" : "✕ Rejected"} {format(new Date(r.reviewed_at), "MMM d, yyyy")}
+                        </p>
+                      )}
+                    </div>
+                    <span className={`text-[10px] font-bold px-2.5 py-1 rounded-full flex-shrink-0 ${r.status === "accepted" ? "bg-green-100 text-green-700" : "bg-red-100 text-red-600"}`}>
+                      {r.status === "accepted" ? "✓ Accepted" : "✕ Rejected"}
+                    </span>
                   </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="text-sm font-semibold text-foreground truncate">{volunteerName}</p>
-                    <p className="text-xs text-muted-foreground truncate">{r.campaign_title || "Campaign"}</p>
-                  </div>
-                  <span className={`text-[10px] font-bold px-2.5 py-1 rounded-full flex-shrink-0 ${r.status === "accepted" ? "bg-green-100 text-green-700" : "bg-red-100 text-red-600"}`}>
-                    {r.status === "accepted" ? "✓ Accepted" : "✕ Rejected"}
-                  </span>
-                </div>
-              );
-            })}
+                );
+              })}
           </div>
         </div>
       )}
