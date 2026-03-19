@@ -203,43 +203,51 @@ function CampaignCard({ campaign, onClick, onEdit }) {
     : null;
 
   return (
-    <div onClick={onClick} className="bg-white rounded-2xl border border-border p-5 shadow-sm space-y-3 cursor-pointer hover:shadow-md hover:border-primary/30 transition-all relative group">
-      {/* Edit button */}
-      <button
-        onClick={onEdit}
-        className="absolute top-3 right-3 p-1.5 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity hover:bg-muted"
-        title="Edit campaign"
-      >
-        <Pencil className="w-3.5 h-3.5 text-muted-foreground" />
-      </button>
+    <div onClick={onClick} className="bg-white rounded-2xl border border-border shadow-sm cursor-pointer hover:shadow-md hover:border-primary/30 transition-all relative group overflow-hidden">
+      {/* Thick orange top bar */}
+      <div className="h-1.5 bg-gradient-to-r from-primary to-accent w-full" />
 
-      <div className="flex items-start gap-2 pr-7">
-        <span className="text-lg">{isFund ? "💰" : "🤝"}</span>
-        <div className="flex-1 min-w-0">
-          <div className="flex items-start justify-between gap-2 flex-wrap">
-            <h3 className="font-semibold text-foreground text-sm leading-snug">{campaign.title}</h3>
-            {fewSeatsLeft && (
-              <span className="flex items-center gap-1 text-[10px] font-bold bg-orange-100 text-orange-600 px-2 py-0.5 rounded-full flex-shrink-0">
-                <AlertTriangle className="w-2.5 h-2.5" /> {seatsLeft} seats left
+      <div className="p-5 space-y-3">
+        {/* Edit button */}
+        <button
+          onClick={onEdit}
+          className="absolute top-5 right-3 p-1.5 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity hover:bg-muted"
+          title="Edit campaign"
+        >
+          <Pencil className="w-3.5 h-3.5 text-muted-foreground" />
+        </button>
+
+        <div className="flex items-start gap-2 pr-7">
+          <span className="text-lg">{isFund ? "💰" : "🤝"}</span>
+          <div className="flex-1 min-w-0">
+            <div className="flex items-start justify-between gap-2 flex-wrap">
+              <h3 className="font-semibold text-foreground text-sm leading-snug">{campaign.title}</h3>
+              {fewSeatsLeft && (
+                <span className="flex items-center gap-1 text-[10px] font-bold bg-orange-100 text-orange-600 px-2 py-0.5 rounded-full flex-shrink-0">
+                  <AlertTriangle className="w-2.5 h-2.5" /> {seatsLeft} seats left
+                </span>
+              )}
+            </div>
+            {campaign.location && (
+              <span className="flex items-center gap-1 text-xs text-muted-foreground mt-0.5">
+                <MapPin className="w-3 h-3" /> {campaign.location}
               </span>
             )}
           </div>
-          {campaign.location && (
-            <span className="flex items-center gap-1 text-xs text-muted-foreground mt-0.5">
-              <MapPin className="w-3 h-3" /> {campaign.location}
-            </span>
-          )}
         </div>
+
+        {shortDesc && <p className="text-xs text-foreground/60 leading-relaxed">{shortDesc}</p>}
+
+        {!isFund && campaign.volunteers_needed ? (
+          <>
+            <div className="border-t border-primary/20" />
+            <div className="flex items-center gap-1.5 text-xs text-primary font-medium">
+              <Users className="w-3.5 h-3.5" />
+              {campaign.volunteers_needed} volunteers needed
+            </div>
+          </>
+        ) : null}
       </div>
-
-      {shortDesc && <p className="text-xs text-foreground/60 leading-relaxed">{shortDesc}</p>}
-
-      {!isFund && campaign.volunteers_needed ? (
-        <div className="flex items-center gap-1.5 text-xs text-primary font-medium">
-          <Users className="w-3.5 h-3.5" />
-          {campaign.volunteers_needed} volunteers needed
-        </div>
-      ) : null}
     </div>
   );
 }
