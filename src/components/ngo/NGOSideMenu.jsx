@@ -386,6 +386,14 @@ function ParticipationRequests({ requests, campaigns, qc }) {
 
   return (
     <div className="p-5 space-y-4">
+      {cvModal && (
+        <VolunteerCVModal
+          userEmail={cvModal.email}
+          volunteerName={cvModal.name}
+          onClose={() => setCVModal(null)}
+        />
+      )}
+
       {requests.length === 0 && (
         <p className="text-center text-muted-foreground text-sm py-8">No participation requests yet.</p>
       )}
@@ -394,23 +402,42 @@ function ParticipationRequests({ requests, campaigns, qc }) {
         <div>
           <p className="text-xs font-semibold text-primary uppercase tracking-wide mb-2">Pending ({pending.length})</p>
           <div className="space-y-3">
-            {pending.map(r => (
-              <div key={r.id} className="border border-blue-200 bg-blue-50/50 rounded-2xl p-4">
-                <p className="font-semibold text-foreground text-sm">{r.campaign_title || campaigns.find(c => c.id === r.campaign_id)?.title || "Campaign"}</p>
-                <p className="text-xs text-muted-foreground mt-0.5">{r.user_email} wants to participate</p>
-                {r.message && <p className="text-xs text-foreground/70 mt-1 italic">"{r.message}"</p>}
-                <div className="flex gap-2 mt-3">
-                  <Button size="sm" className="rounded-xl gap-1 bg-green-600 hover:bg-green-700 text-white text-xs h-7"
-                    onClick={() => updateRequest.mutate({ id: r.id, status: "accepted", req: r })}>
-                    <Check className="w-3 h-3" /> Accept
-                  </Button>
-                  <Button size="sm" variant="outline" className="rounded-xl gap-1 text-red-500 border-red-200 hover:bg-red-50 text-xs h-7"
-                    onClick={() => updateRequest.mutate({ id: r.id, status: "rejected", req: r })}>
-                    <X className="w-3 h-3" /> Reject
-                  </Button>
+            {pending.map(r => {
+              // Extract name from CV message or use email
+              const nameMatch = r.message?.match(/Name:\s*(.+)/);
+              const volunteerName = nameMatch ? nameMatch[1].trim() : r.user_email;
+
+              return (
+                <div key={r.id} className="border border-blue-200 bg-blue-50/50 rounded-2xl p-4 space-y-3">
+                  {/* Campaign title */}
+                  <p className="font-bold text-foreground text-sm">
+                    {r.campaign_title || campaigns.find(c => c.id === r.campaign_id)?.title || "Campaign"}
+                  </p>
+                  {/* Volunteer name */}
+                  <p className="text-sm text-foreground/80 font-medium">{volunteerName}</p>
+
+                  {/* CV button */}
+                  <button
+                    onClick={() => setCVModal({ email: r.user_email, name: volunteerName })}
+                    className="flex items-center gap-1.5 text-xs font-semibold text-primary border border-primary/30 bg-primary/5 hover:bg-primary/10 rounded-xl px-3 py-1.5 transition-colors"
+                  >
+                    <FileText className="w-3.5 h-3.5" /> View CV
+                  </button>
+
+                  {/* Actions */}
+                  <div className="flex gap-2">
+                    <Button size="sm" className="rounded-xl gap-1 bg-green-600 hover:bg-green-700 text-white text-xs h-7"
+                      onClick={() => updateRequest.mutate({ id: r.id, status: "accepted", req: r })}>
+                      <Check className="w-3 h-3" /> Accept
+                    </Button>
+                    <Button size="sm" variant="outline" className="rounded-xl gap-1 text-red-500 border-red-200 hover:bg-red-50 text-xs h-7"
+                      onClick={() => updateRequest.mutate({ id: r.id, status: "rejected", req: r })}>
+                      <X className="w-3 h-3" /> Reject
+                    </Button>
+                  </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </div>
       )}
