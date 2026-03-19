@@ -98,6 +98,9 @@ export default function ImpactProfile() {
             {activePanel === "settings" && (
               <EditProfileForm profile={profile} user={user} />
             )}
+            {activePanel === "cv" && (
+              <MyCVPanel user={user} activities={activities} />
+            )}
           </div>
         )}
 
