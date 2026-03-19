@@ -176,6 +176,7 @@ export default function VolunteersList({ activities, hourEntries }) {
             </div>
           </div>
         </div>
+        </div>
         )}
         );
         }
