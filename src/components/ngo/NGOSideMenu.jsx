@@ -266,3 +266,160 @@ function VolunteerBook({ activities, hourEntries }) {
     </div>
   );
 }
+
+function HoursRequests({ hourEntries, activities, qc }) {
+  const pending = hourEntries.filter(h => h.status === "pending");
+  const reviewed = hourEntries.filter(h => h.status !== "pending");
+
+  const updateEntry = useMutation({
+    mutationFn: async ({ id, status, entry }) => {
+      await base44.entities.HourEntry.update(id, { status });
+      // Send notification to volunteer
+      const activity = activities.find(a => a.id === entry.activity_id);
+      await base44.entities.Notification.create({
+        user_email: entry.user_email,
+        type: status === "approved" ? "hour_approved" : "hour_rejected",
+        title: status === "approved" ? "Hours Approved ✅" : "Hours Rejected",
+        message: `Your ${entry.hours}h for "${activity?.title || "activity"}" have been ${status}.`,
+        is_read: false,
+      });
+    },
+    onSuccess: () => { qc.invalidateQueries(["hour-entries"]); },
+  });
+
+  const getActivity = (id) => activities.find(a => a.id === id);
+
+  return (
+    <div className="p-5 space-y-4">
+      {pending.length === 0 && reviewed.length === 0 && (
+        <p className="text-center text-muted-foreground text-sm py-8">No hour requests yet.</p>
+      )}
+
+      {pending.length > 0 && (
+        <div>
+          <p className="text-xs font-semibold text-primary uppercase tracking-wide mb-2">Pending ({pending.length})</p>
+          <div className="space-y-3">
+            {pending.map(h => {
+              const act = getActivity(h.activity_id);
+              return (
+                <div key={h.id} className="border border-amber-200 bg-amber-50/50 rounded-2xl p-4">
+                  <p className="font-semibold text-foreground text-sm">{act?.title || "Unknown Activity"}</p>
+                  <p className="text-xs text-muted-foreground mt-0.5">{h.user_email}</p>
+                  <div className="flex gap-2 text-xs text-muted-foreground mt-1">
+                    <span className="font-bold text-foreground">{h.hours}h</span>
+                    {h.date && <span>{format(new Date(h.date), "MMM d, yyyy")}</span>}
+                    {h.note && <span>· {h.note}</span>}
+                  </div>
+                  <div className="flex gap-2 mt-3">
+                    <Button size="sm" className="rounded-xl gap-1 bg-green-600 hover:bg-green-700 text-white text-xs h-7"
+                      onClick={() => updateEntry.mutate({ id: h.id, status: "approved", entry: h })}>
+                      <Check className="w-3 h-3" /> Approve
+                    </Button>
+                    <Button size="sm" variant="outline" className="rounded-xl gap-1 text-red-500 border-red-200 hover:bg-red-50 text-xs h-7"
+                      onClick={() => updateEntry.mutate({ id: h.id, status: "rejected", entry: h })}>
+                      <X className="w-3 h-3" /> Reject
+                    </Button>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
+
+      {reviewed.length > 0 && (
+        <div>
+          <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-2">Reviewed ({reviewed.length})</p>
+          <div className="space-y-2">
+            {reviewed.map(h => {
+              const act = getActivity(h.activity_id);
+              return (
+                <div key={h.id} className="border border-border rounded-2xl p-3 flex items-center justify-between gap-3">
+                  <div>
+                    <p className="text-sm font-medium text-foreground">{act?.title || "Unknown"}</p>
+                    <p className="text-xs text-muted-foreground">{h.user_email} · {h.hours}h</p>
+                  </div>
+                  <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${h.status === "approved" ? "bg-green-100 text-green-700" : "bg-red-100 text-red-600"}`}>
+                    {h.status}
+                  </span>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+function ParticipationRequests({ requests, campaigns, qc }) {
+  const pending = requests.filter(r => r.status === "pending");
+  const reviewed = requests.filter(r => r.status !== "pending");
+
+  const updateRequest = useMutation({
+    mutationFn: async ({ id, status, req }) => {
+      await base44.entities.CampaignParticipationRequest.update(id, { status });
+      // Send notification to volunteer
+      await base44.entities.Notification.create({
+        user_email: req.user_email,
+        type: status === "accepted" ? "volunteering_accepted" : "volunteering_rejected",
+        title: status === "accepted" ? "Request Accepted! 🎉" : "Request Rejected",
+        message: `Your request to join "${req.campaign_title || "the campaign"}" has been ${status}.`,
+        is_read: false,
+      });
+    },
+    onSuccess: () => qc.invalidateQueries(["participation-requests"]),
+  });
+
+  return (
+    <div className="p-5 space-y-4">
+      {requests.length === 0 && (
+        <p className="text-center text-muted-foreground text-sm py-8">No participation requests yet.</p>
+      )}
+
+      {pending.length > 0 && (
+        <div>
+          <p className="text-xs font-semibold text-primary uppercase tracking-wide mb-2">Pending ({pending.length})</p>
+          <div className="space-y-3">
+            {pending.map(r => (
+              <div key={r.id} className="border border-blue-200 bg-blue-50/50 rounded-2xl p-4">
+                <p className="font-semibold text-foreground text-sm">{r.campaign_title || campaigns.find(c => c.id === r.campaign_id)?.title || "Campaign"}</p>
+                <p className="text-xs text-muted-foreground mt-0.5">{r.user_email} wants to participate</p>
+                {r.message && <p className="text-xs text-foreground/70 mt-1 italic">"{r.message}"</p>}
+                <div className="flex gap-2 mt-3">
+                  <Button size="sm" className="rounded-xl gap-1 bg-green-600 hover:bg-green-700 text-white text-xs h-7"
+                    onClick={() => updateRequest.mutate({ id: r.id, status: "accepted", req: r })}>
+                    <Check className="w-3 h-3" /> Accept
+                  </Button>
+                  <Button size="sm" variant="outline" className="rounded-xl gap-1 text-red-500 border-red-200 hover:bg-red-50 text-xs h-7"
+                    onClick={() => updateRequest.mutate({ id: r.id, status: "rejected", req: r })}>
+                    <X className="w-3 h-3" /> Reject
+                  </Button>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {reviewed.length > 0 && (
+        <div>
+          <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-2">Reviewed ({reviewed.length})</p>
+          <div className="space-y-2">
+            {reviewed.map(r => (
+              <div key={r.id} className="border border-border rounded-2xl p-3 flex items-center justify-between gap-3">
+                <div>
+                  <p className="text-sm font-medium text-foreground">{r.campaign_title || "Campaign"}</p>
+                  <p className="text-xs text-muted-foreground">{r.user_email}</p>
+                </div>
+                <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${r.status === "accepted" ? "bg-green-100 text-green-700" : "bg-red-100 text-red-600"}`}>
+                  {r.status}
+                </span>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
