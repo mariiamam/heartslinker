@@ -173,15 +173,14 @@ export default function VolunteersList({ activities, hourEntries }) {
                 </div>
               )}
             </div>
-          </div>
-          </div>
-          </div>
-          )}
-          </div>
-          );
-          }
+            </div>
+            </div>
+            )}
+            </div>
+            );
+            }
 
-          function StatusBadge({ status }) {
+            function StatusBadge({ status }) {
   const styles = {
     approved: "bg-green-100 text-green-700",
     pending: "bg-amber-100 text-amber-700",
