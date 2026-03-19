@@ -84,6 +84,7 @@ export default function CampaignsSection({ campaigns, ngoId }) {
   };
 
   const isBusy = createCampaign.isPending || updateCampaign.isPending;
+  const isInvalid = !form.title || !form.location || !form.description || !form.category;
 
   return (
     <div className="space-y-4">
