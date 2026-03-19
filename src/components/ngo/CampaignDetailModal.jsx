@@ -81,6 +81,25 @@ export default function CampaignDetailModal({ campaign, onClose, ngoName }) {
         </div>
       );
     }
+    if (!cv) {
+      return (
+        <div className="space-y-2.5">
+          <div className="bg-amber-50 border border-amber-200 rounded-2xl px-4 py-3 flex gap-3">
+            <AlertTriangle className="w-4 h-4 text-amber-600 flex-shrink-0 mt-0.5" />
+            <p className="text-sm font-semibold text-amber-800">Fill your CV first please</p>
+          </div>
+          <Button
+            className="w-full rounded-2xl bg-amber-600 hover:bg-amber-700 gap-2"
+            onClick={() => {
+              window.location.hash = 'cv';
+              onClose();
+            }}
+          >
+            📋 Go to CV
+          </Button>
+        </div>
+      );
+    }
     return (
       <Button
         className="w-full rounded-2xl bg-primary hover:bg-primary/90 gap-2"
