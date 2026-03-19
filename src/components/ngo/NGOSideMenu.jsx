@@ -72,11 +72,16 @@ export default function NGOSideMenu({ ngo, campaigns, activities, hourEntries, p
   );
 }
 
-function MenuCard({ icon: Icon, label, desc, onClick }) {
+function MenuCard({ icon: Icon, label, desc, onClick, badge }) {
   return (
     <button onClick={onClick} className="w-full flex items-center gap-4 bg-muted/40 hover:bg-muted rounded-2xl p-4 text-left transition-colors">
-      <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center flex-shrink-0">
+      <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center flex-shrink-0 relative">
         <Icon className="w-5 h-5 text-primary" />
+        {badge > 0 && (
+          <span className="absolute -top-1.5 -right-1.5 bg-primary text-white text-[10px] font-bold rounded-full w-4 h-4 flex items-center justify-center">
+            {badge}
+          </span>
+        )}
       </div>
       <div>
         <p className="font-semibold text-foreground text-sm">{label}</p>
