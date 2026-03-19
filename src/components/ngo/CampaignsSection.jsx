@@ -229,6 +229,7 @@ export default function CampaignsSection({ campaigns, ngoId }) {
 }
 
 function CampaignCard({ campaign, onClick, onEdit, onComplete }) {
+  const [confirmComplete, setConfirmComplete] = useState(false);
   const isFund = campaign.type === "fundraising";
   const seatsLeft = campaign.volunteers_needed && campaign.volunteers_enrolled != null
     ? campaign.volunteers_needed - (campaign.volunteers_enrolled || 0)
@@ -253,13 +254,30 @@ function CampaignCard({ campaign, onClick, onEdit, onComplete }) {
           >
             <Pencil className="w-3.5 h-3.5 text-muted-foreground" />
           </button>
-          <button
-            onClick={onComplete}
-            className="p-1.5 rounded-xl hover:bg-green-50"
-            title="Mark as completed"
-          >
-            <CheckCircle className="w-3.5 h-3.5 text-green-500" />
-          </button>
+          {confirmComplete ? (
+            <div className="flex items-center gap-1" onClick={e => e.stopPropagation()}>
+              <button
+                onClick={(e) => { e.stopPropagation(); onComplete(e); setConfirmComplete(false); }}
+                className="text-[10px] font-bold bg-green-500 text-white px-2 py-1 rounded-lg hover:bg-green-600"
+              >
+                Confirm
+              </button>
+              <button
+                onClick={(e) => { e.stopPropagation(); setConfirmComplete(false); }}
+                className="text-[10px] font-bold bg-muted text-muted-foreground px-2 py-1 rounded-lg hover:bg-muted/80"
+              >
+                Cancel
+              </button>
+            </div>
+          ) : (
+            <button
+              onClick={(e) => { e.stopPropagation(); setConfirmComplete(true); }}
+              className="p-1.5 rounded-xl hover:bg-green-50"
+              title="Mark as completed"
+            >
+              <CheckCircle className="w-3.5 h-3.5 text-green-500" />
+            </button>
+          )}
         </div>
 
         <div className="flex items-start gap-2 pr-14">
