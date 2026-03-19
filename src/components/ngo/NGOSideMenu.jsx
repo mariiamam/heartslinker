@@ -23,17 +23,43 @@ export default function NGOSideMenu({ ngo, campaigns, activities, hourEntries, p
   return (
     <>
       {/* Hamburger button - inline trigger rendered by parent */}
-      <button
-        onClick={() => setOpen(true)}
-        className="relative inline-flex items-center justify-center bg-white border border-border rounded-xl p-2.5 shadow-sm hover:bg-muted transition-colors"
-      >
-        <Menu className="w-5 h-5 text-foreground" />
-        {totalBadge > 0 && (
-          <span className="absolute -top-1.5 -right-1.5 bg-primary text-white text-[10px] font-bold rounded-full w-5 h-5 flex items-center justify-center">
-            {totalBadge}
-          </span>
-        )}
-      </button>
+      <div className="flex flex-col gap-2">
+        {/* Stats mini icons */}
+        <div className="flex gap-2">
+          {/* Active Activities */}
+          <div className="relative inline-flex items-center justify-center bg-white border border-border rounded-xl p-2.5 shadow-sm hover:bg-muted transition-colors" title="Active Activities">
+            <Clock className="w-5 h-5 text-amber-600" />
+            {activeActivitiesCount > 0 && (
+              <span className="absolute -top-1.5 -right-1.5 bg-amber-600 text-white text-[10px] font-bold rounded-full w-5 h-5 flex items-center justify-center">
+                {activeActivitiesCount}
+              </span>
+            )}
+          </div>
+          
+          {/* Total Volunteers */}
+          <div className="relative inline-flex items-center justify-center bg-white border border-border rounded-xl p-2.5 shadow-sm hover:bg-muted transition-colors" title="Total Volunteers">
+            <Users className="w-5 h-5 text-primary" />
+            {uniqueVolunteersCount > 0 && (
+              <span className="absolute -top-1.5 -right-1.5 bg-primary text-white text-[10px] font-bold rounded-full w-5 h-5 flex items-center justify-center">
+                {uniqueVolunteersCount}
+              </span>
+            )}
+          </div>
+        </div>
+        
+        {/* Menu button */}
+        <button
+          onClick={() => setOpen(true)}
+          className="relative inline-flex items-center justify-center bg-white border border-border rounded-xl p-2.5 shadow-sm hover:bg-muted transition-colors"
+        >
+          <Menu className="w-5 h-5 text-foreground" />
+          {totalBadge > 0 && (
+            <span className="absolute -top-1.5 -right-1.5 bg-primary text-white text-[10px] font-bold rounded-full w-5 h-5 flex items-center justify-center">
+              {totalBadge}
+            </span>
+          )}
+        </button>
+      </div>
 
       {/* Overlay */}
       {open && (
