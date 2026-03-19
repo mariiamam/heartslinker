@@ -49,29 +49,10 @@ export default function ProfileHeader({ profile, user, activities = [], hourEntr
               <h1 className="text-2xl font-bold text-foreground font-inter">
                 {user?.full_name || "Anonymous Hero"}
               </h1>
-              <div className="flex flex-wrap items-center gap-2">
-                <span className="inline-flex items-center gap-1 text-xs font-bold text-white bg-gradient-to-r from-primary to-accent px-2.5 py-0.5 rounded-full shadow-sm">
-                  <Zap className="w-3 h-3" /> Change Maker
-                </span>
-                {profile?.is_verified && (
-                  <span className="inline-flex items-center gap-1 text-xs font-medium text-primary bg-primary/10 px-2 py-0.5 rounded-full w-fit">
-                    <BadgeCheck className="w-3 h-3" /> Verified
-                  </span>
-                )}
+              <span className="inline-flex items-center gap-1 text-xs font-bold text-white bg-gradient-to-r from-primary to-accent px-2.5 py-0.5 rounded-full shadow-sm">
+                <Zap className="w-3 h-3" /> Change Maker
+              </span>
               </div>
-            </div>
-            <div className="flex flex-wrap items-center gap-3 mt-1 text-sm text-muted-foreground">
-              {profile?.location && (
-                <span className="flex items-center gap-1">
-                  <MapPin className="w-3.5 h-3.5" /> {profile.location}
-                </span>
-              )}
-              {profile?.languages?.length > 0 && (
-                <span className="flex items-center gap-1">
-                  <Globe className="w-3.5 h-3.5" /> {profile.languages.join(", ")}
-                </span>
-              )}
-            </div>
           </div>
 
           {/* Actions */}
