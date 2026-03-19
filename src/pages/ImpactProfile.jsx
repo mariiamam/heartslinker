@@ -76,7 +76,7 @@ export default function ImpactProfile() {
 
       <div className="max-w-4xl mx-auto pb-16">
         {/* Header */}
-        <ProfileHeader profile={profile} user={user} />
+        <ProfileHeader profile={profile} user={user} activities={activities} hourEntries={hourEntries} />
 
         {/* Stats icons + Menu icon row */}
         <div className="px-6 md:px-10 mt-5 flex items-center justify-between">

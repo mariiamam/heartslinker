@@ -274,15 +274,25 @@ function CVView({ cv, user, activities, onEdit }) {
   );
 }
 
-function CVSection({ icon, title, children }) {
+function CVSection({ icon, title, children, collapsible = false }) {
+  const [open, setOpen] = useState(!collapsible);
   return (
     <div>
-      <div className="flex items-center gap-2 mb-2.5">
+      <button
+        type="button"
+        className="w-full flex items-center gap-2 mb-2.5 group"
+        onClick={() => collapsible && setOpen(o => !o)}
+      >
         <span className="text-base">{icon}</span>
         <h3 className="text-xs font-bold text-foreground uppercase tracking-wide">{title}</h3>
         <div className="flex-1 h-px bg-border" />
-      </div>
-      {children}
+        {collapsible && (
+          <span className="text-muted-foreground ml-1">
+            {open ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
+          </span>
+        )}
+      </button>
+      {open && children}
     </div>
   );
 }
