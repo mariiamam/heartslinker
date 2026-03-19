@@ -118,7 +118,7 @@ export default function CampaignDetailModal({ campaign, onClose, ngoName }) {
               <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-1.5 flex items-center gap-1.5">
                 <ClipboardList className="w-3.5 h-3.5" /> Requirements
               </h3>
-              <p className="text-sm text-foreground/80 leading-relaxed bg-muted/40 rounded-2xl px-4 py-3">{campaign.requirements}</p>
+              <p className="text-sm text-foreground/80 leading-relaxed bg-muted/40 rounded-2xl px-4 py-3 whitespace-pre-line">{campaign.requirements}</p>
             </div>
           )}
 
