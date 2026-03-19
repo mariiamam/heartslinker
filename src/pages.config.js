@@ -47,8 +47,34 @@
  *
  * The mainPage value must match a key in the PAGES object exactly.
  */
+import Campaigns from './pages/Campaigns';
+import ImpactProfile from './pages/ImpactProfile';
+import Landing from './pages/Landing';
+import MyCampaigns from './pages/MyCampaigns';
+import MyUpdates from './pages/MyUpdates';
+import NGODirectory from './pages/NGODirectory';
+import NGOProfile from './pages/NGOProfile';
+import Settings from './pages/Settings';
+import SocialFeed from './pages/SocialFeed';
+import Volunteering from './pages/Volunteering';
+import NGODashboard from './pages/NGODashboard';
 
-export const pagesConfig = {
-	Pages: {}
+
+export const PAGES = {
+    "Campaigns": Campaigns,
+    "ImpactProfile": ImpactProfile,
+    "Landing": Landing,
+    "MyCampaigns": MyCampaigns,
+    "MyUpdates": MyUpdates,
+    "NGODirectory": NGODirectory,
+    "NGOProfile": NGOProfile,
+    "Settings": Settings,
+    "SocialFeed": SocialFeed,
+    "Volunteering": Volunteering,
+    "NGODashboard": NGODashboard,
 }
 
+export const pagesConfig = {
+    mainPage: "Landing",
+    Pages: PAGES,
+};
