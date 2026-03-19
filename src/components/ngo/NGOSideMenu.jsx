@@ -637,7 +637,7 @@ function ParticipationRequests({ requests, campaigns, ngo, qc }) {
 
   const updateRequest = useMutation({
     mutationFn: async ({ id, status, req }) => {
-      await base44.entities.CampaignParticipationRequest.update(id, { status });
+      await base44.entities.CampaignParticipationRequest.update(id, { status, reviewed_at: new Date().toISOString() });
 
       if (status === "accepted") {
         const campaign = campaigns.find(c => c.id === req.campaign_id);
