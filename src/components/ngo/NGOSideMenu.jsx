@@ -20,7 +20,7 @@ export default function NGOSideMenu({ ngo, campaigns, activities, hourEntries, p
       {/* Hamburger button - inline trigger rendered by parent */}
       <button
         onClick={() => setOpen(true)}
-        className="relative inline-flex items-center justify-center bg-white border border-border rounded-xl p-2.5 shadow-sm hover:bg-muted transition-colors"
+        className="fixed top-5 right-5 z-40 relative inline-flex items-center justify-center bg-white border border-border rounded-xl p-2.5 shadow-md hover:bg-muted transition-colors"
       >
         <Menu className="w-5 h-5 text-foreground" />
         {totalBadge > 0 && (
