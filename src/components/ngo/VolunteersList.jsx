@@ -119,65 +119,64 @@ export default function VolunteersList({ activities, hourEntries }) {
         {/* Volunteer Info Modal */}
         {selectedVolunteerProfile && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm" onClick={() => setSelectedVolunteerEmail(null)}>
-        <div className="bg-white rounded-3xl shadow-2xl w-full max-w-lg max-h-[90vh] overflow-y-auto" onClick={e => e.stopPropagation()}>
-          <div className="flex items-center justify-between p-6 border-b border-border">
-            <h2 className="font-bold text-foreground text-lg">Volunteer Profile</h2>
-            <button onClick={() => setSelectedVolunteerEmail(null)} className="p-1.5 rounded-xl hover:bg-muted transition-colors">
-              <X className="w-4 h-4 text-muted-foreground" />
-            </button>
-          </div>
-
-          <div className="p-6 space-y-4">
-            <div>
-              <p className="text-xs text-muted-foreground font-semibold uppercase">Email</p>
-              <p className="text-sm font-medium text-foreground">{selectedVolunteerEmail}</p>
+          <div className="bg-white rounded-3xl shadow-2xl w-full max-w-lg max-h-[90vh] overflow-y-auto" onClick={e => e.stopPropagation()}>
+            <div className="flex items-center justify-between p-6 border-b border-border">
+              <h2 className="font-bold text-foreground text-lg">Volunteer Profile</h2>
+              <button onClick={() => setSelectedVolunteerEmail(null)} className="p-1.5 rounded-xl hover:bg-muted transition-colors">
+                <X className="w-4 h-4 text-muted-foreground" />
+              </button>
             </div>
 
-            {selectedVolunteerProfile.cv_full_name && (
+            <div className="p-6 space-y-4">
               <div>
-                <p className="text-xs text-muted-foreground font-semibold uppercase">Full Name</p>
-                <p className="text-sm font-medium text-foreground">{selectedVolunteerProfile.cv_full_name}</p>
+                <p className="text-xs text-muted-foreground font-semibold uppercase">Email</p>
+                <p className="text-sm font-medium text-foreground">{selectedVolunteerEmail}</p>
               </div>
-            )}
 
-            {selectedVolunteerProfile.cv_phone && (
-              <div>
-                <p className="text-xs text-muted-foreground font-semibold uppercase">Phone</p>
-                <p className="text-sm font-medium text-foreground">{selectedVolunteerProfile.cv_phone}</p>
-              </div>
-            )}
-
-            {selectedVolunteerProfile.cv_city && (
-              <div>
-                <p className="text-xs text-muted-foreground font-semibold uppercase">Location</p>
-                <p className="text-sm font-medium text-foreground">{[selectedVolunteerProfile.cv_city, selectedVolunteerProfile.cv_country].filter(Boolean).join(", ")}</p>
-              </div>
-            )}
-
-            {selectedVolunteerProfile.cv_primary_skills?.length > 0 && (
-              <div>
-                <p className="text-xs text-muted-foreground font-semibold uppercase">Primary Skills</p>
-                <div className="flex flex-wrap gap-1.5 mt-1.5">
-                  {selectedVolunteerProfile.cv_primary_skills.map((skill, i) => (
-                    <span key={i} className="text-xs bg-primary/10 text-primary px-2 py-1 rounded-full">{skill}</span>
-                  ))}
+              {selectedVolunteerProfile.cv_full_name && (
+                <div>
+                  <p className="text-xs text-muted-foreground font-semibold uppercase">Full Name</p>
+                  <p className="text-sm font-medium text-foreground">{selectedVolunteerProfile.cv_full_name}</p>
                 </div>
-              </div>
-            )}
+              )}
 
-            {selectedVolunteerProfile.uploaded_cv_url && (
-              <div>
-                <p className="text-xs text-muted-foreground font-semibold uppercase mb-2">Uploaded CV</p>
-                <a href={selectedVolunteerProfile.uploaded_cv_url} target="_blank" rel="noopener noreferrer" className="text-sm font-medium text-primary hover:underline">
-                  📄 Download CV
-                </a>
-              </div>
-            )}
+              {selectedVolunteerProfile.cv_phone && (
+                <div>
+                  <p className="text-xs text-muted-foreground font-semibold uppercase">Phone</p>
+                  <p className="text-sm font-medium text-foreground">{selectedVolunteerProfile.cv_phone}</p>
+                </div>
+              )}
+
+              {selectedVolunteerProfile.cv_city && (
+                <div>
+                  <p className="text-xs text-muted-foreground font-semibold uppercase">Location</p>
+                  <p className="text-sm font-medium text-foreground">{[selectedVolunteerProfile.cv_city, selectedVolunteerProfile.cv_country].filter(Boolean).join(", ")}</p>
+                </div>
+              )}
+
+              {selectedVolunteerProfile.cv_primary_skills?.length > 0 && (
+                <div>
+                  <p className="text-xs text-muted-foreground font-semibold uppercase">Primary Skills</p>
+                  <div className="flex flex-wrap gap-1.5 mt-1.5">
+                    {selectedVolunteerProfile.cv_primary_skills.map((skill, i) => (
+                      <span key={i} className="text-xs bg-primary/10 text-primary px-2 py-1 rounded-full">{skill}</span>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {selectedVolunteerProfile.uploaded_cv_url && (
+                <div>
+                  <p className="text-xs text-muted-foreground font-semibold uppercase mb-2">Uploaded CV</p>
+                  <a href={selectedVolunteerProfile.uploaded_cv_url} target="_blank" rel="noopener noreferrer" className="text-sm font-medium text-primary hover:underline">
+                    📄 Download CV
+                  </a>
+                </div>
+              )}
+            </div>
           </div>
         </div>
-        </div>
         )}
-        );
         }
 
         function StatusBadge({ status }) {
