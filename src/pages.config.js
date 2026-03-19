@@ -51,12 +51,12 @@ import ImpactProfile from './pages/ImpactProfile';
 import Landing from './pages/Landing';
 import MyCampaigns from './pages/MyCampaigns';
 import MyUpdates from './pages/MyUpdates';
+import NGODashboard from './pages/NGODashboard';
 import NGODirectory from './pages/NGODirectory';
 import NGOProfile from './pages/NGOProfile';
 import Settings from './pages/Settings';
 import SocialFeed from './pages/SocialFeed';
 import Volunteering from './pages/Volunteering';
-import NGODashboard from './pages/NGODashboard';
 import Campaigns from './pages/Campaigns';
 
 
@@ -65,12 +65,12 @@ export const PAGES = {
     "Landing": Landing,
     "MyCampaigns": MyCampaigns,
     "MyUpdates": MyUpdates,
+    "NGODashboard": NGODashboard,
     "NGODirectory": NGODirectory,
     "NGOProfile": NGOProfile,
     "Settings": Settings,
     "SocialFeed": SocialFeed,
     "Volunteering": Volunteering,
-    "NGODashboard": NGODashboard,
     "Campaigns": Campaigns,
 }
 
