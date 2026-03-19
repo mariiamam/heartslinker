@@ -15,6 +15,10 @@ export default function NGOSideMenu({ ngo, campaigns, activities, hourEntries, p
   const pendingHours = hourEntries.filter(h => h.status === "pending").length;
   const pendingParticipation = (participationRequests || []).filter(r => r.status === "pending").length;
   const totalBadge = pendingHours + pendingParticipation;
+  
+  // Calculate current counts for stats display
+  const activeActivitiesCount = activities.filter(a => a.status === "in_process").length;
+  const uniqueVolunteersCount = new Set(activities.map(a => a.user_email)).size;
 
   return (
     <>
