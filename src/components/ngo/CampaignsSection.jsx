@@ -165,7 +165,7 @@ export default function CampaignsSection({ campaigns, ngoId }) {
           </div>
           <div className="flex gap-2 justify-end">
             <Button size="sm" variant="outline" className="rounded-xl" onClick={closeForm}>Cancel</Button>
-            <Button size="sm" className="rounded-xl bg-primary hover:bg-primary/90" onClick={handleSubmit} disabled={isBusy}>
+            <Button size="sm" className="rounded-xl bg-primary hover:bg-primary/90" onClick={handleSubmit} disabled={isBusy || isInvalid}>
               {isBusy ? "Saving..." : editingCampaign ? "Save Changes" : "Launch Campaign"}
             </Button>
           </div>
