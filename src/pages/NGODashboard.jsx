@@ -55,6 +55,12 @@ export default function NGODashboard() {
     enabled: !!ngo?.id,
   });
 
+  const { data: participationRequests = [] } = useQuery({
+    queryKey: ["participation-requests", ngo?.id],
+    queryFn: () => base44.entities.CampaignParticipationRequest.filter({ ngo_id: ngo?.id }),
+    enabled: !!ngo?.id,
+  });
+
   if (!user) return (
     <div className="min-h-screen bg-background flex items-center justify-center">
       <div className="w-8 h-8 border-4 border-primary/30 border-t-primary rounded-full animate-spin" />
@@ -80,7 +86,7 @@ export default function NGODashboard() {
         <NGOPostsSection posts={posts} ngoId={ngo?.id} ngoName={ngo?.name} />
 
         {/* Side menu */}
-        <NGOSideMenu ngo={ngo} campaigns={campaigns} activities={activities} hourEntries={hourEntries} />
+        <NGOSideMenu ngo={ngo} campaigns={campaigns} activities={activities} hourEntries={hourEntries} participationRequests={participationRequests} />
 
         {/* 5. Management tabs */}
         <div className="pt-4 border-t border-border">
