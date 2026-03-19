@@ -128,10 +128,10 @@ function HourRow({ entry, activity, onApprove, onReject, isLoading }) {
       </div>
       {entry.status === "pending" && (
         <div className="flex gap-2">
-          <Button size="sm" className="rounded-xl gap-1 bg-green-600 hover:bg-green-700 text-white text-xs" onClick={onApprove}>
+          <Button size="sm" className="rounded-xl gap-1 bg-green-600 hover:bg-green-700 text-white text-xs" onClick={onApprove} disabled={isLoading}>
             <Check className="w-3.5 h-3.5" /> Approve
           </Button>
-          <Button size="sm" variant="outline" className="rounded-xl gap-1 text-red-500 border-red-200 hover:bg-red-50 text-xs" onClick={onReject}>
+          <Button size="sm" variant="outline" className="rounded-xl gap-1 text-red-500 border-red-200 hover:bg-red-50 text-xs" onClick={onReject} disabled={isLoading}>
             <X className="w-3.5 h-3.5" /> Reject
           </Button>
         </div>
