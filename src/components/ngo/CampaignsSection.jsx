@@ -8,7 +8,8 @@ import CampaignDetailModal from "./CampaignDetailModal";
 
 export default function CampaignsSection({ campaigns, ngoId }) {
   const [showForm, setShowForm] = useState(false);
-  const [form, setForm] = useState({ title: "", description: "", type: "volunteers", location: "", volunteers_needed: "", goal_amount: "", collected_amount: "" });
+  const [selectedCampaign, setSelectedCampaign] = useState(null);
+  const [form, setForm] = useState({ title: "", description: "", type: "volunteers", location: "", volunteers_needed: "", volunteers_enrolled: "", goal_amount: "", collected_amount: "", start_date: "", end_date: "", requirements: "", min_age: "", max_age: "" });
   const qc = useQueryClient();
 
   const createCampaign = useMutation({
