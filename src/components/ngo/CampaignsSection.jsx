@@ -3,49 +3,104 @@ import { base44 } from "@/api/base44Client";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Plus, Users, MapPin, AlertTriangle } from "lucide-react";
+import { Plus, Users, MapPin, AlertTriangle, Pencil } from "lucide-react";
 import CampaignDetailModal from "./CampaignDetailModal";
+
+const EMPTY_FORM = {
+  title: "", description: "", type: "volunteers", category: "",
+  location: "", volunteers_needed: "", volunteers_enrolled: "",
+  goal_amount: "", collected_amount: "", start_date: "", end_date: "",
+  signup_deadline: "", requirements: "", min_age: "", max_age: ""
+};
+
+const CATEGORIES = ["Food", "Education", "Shelter", "Health", "Environment", "Refugees", "Children"];
 
 export default function CampaignsSection({ campaigns, ngoId }) {
   const [showForm, setShowForm] = useState(false);
+  const [editingCampaign, setEditingCampaign] = useState(null); // campaign being edited
   const [selectedCampaign, setSelectedCampaign] = useState(null);
-  const [form, setForm] = useState({ title: "", description: "", type: "volunteers", location: "", volunteers_needed: "", volunteers_enrolled: "", goal_amount: "", collected_amount: "", start_date: "", end_date: "", requirements: "", min_age: "", max_age: "" });
+  const [form, setForm] = useState(EMPTY_FORM);
   const qc = useQueryClient();
 
   const createCampaign = useMutation({
     mutationFn: (data) => base44.entities.Campaign.create(data),
-    onSuccess: () => { qc.invalidateQueries(["campaigns"]); setShowForm(false); setForm({ title: "", description: "", type: "volunteers", location: "", volunteers_needed: "", goal_amount: "", collected_amount: "" }); },
+    onSuccess: () => { qc.invalidateQueries(["campaigns"]); closeForm(); },
   });
 
-  const handleCreate = () => {
+  const updateCampaign = useMutation({
+    mutationFn: ({ id, data }) => base44.entities.Campaign.update(id, data),
+    onSuccess: () => { qc.invalidateQueries(["campaigns"]); closeForm(); },
+  });
+
+  const openCreate = () => {
+    setEditingCampaign(null);
+    setForm(EMPTY_FORM);
+    setShowForm(true);
+  };
+
+  const openEdit = (campaign, e) => {
+    e.stopPropagation();
+    setEditingCampaign(campaign);
+    setForm({
+      title: campaign.title || "",
+      description: campaign.description || "",
+      type: campaign.type || "volunteers",
+      category: campaign.category || "",
+      location: campaign.location || "",
+      volunteers_needed: campaign.volunteers_needed ?? "",
+      volunteers_enrolled: campaign.volunteers_enrolled ?? "",
+      goal_amount: campaign.goal_amount ?? "",
+      collected_amount: campaign.collected_amount ?? "",
+      start_date: campaign.start_date || "",
+      end_date: campaign.end_date || "",
+      signup_deadline: campaign.signup_deadline || "",
+      requirements: campaign.requirements || "",
+      min_age: campaign.min_age ?? "",
+      max_age: campaign.max_age ?? "",
+    });
+    setShowForm(true);
+  };
+
+  const closeForm = () => { setShowForm(false); setEditingCampaign(null); setForm(EMPTY_FORM); };
+
+  const handleSubmit = () => {
     if (!form.title) return;
-    createCampaign.mutate({
+    const payload = {
       ...form,
       ngo_id: ngoId,
-      volunteers_needed: form.volunteers_needed ? Number(form.volunteers_needed) : undefined,
-      volunteers_enrolled: form.volunteers_enrolled ? Number(form.volunteers_enrolled) : 0,
-      goal_amount: form.goal_amount ? Number(form.goal_amount) : undefined,
-      collected_amount: form.collected_amount ? Number(form.collected_amount) : 0,
-      min_age: form.min_age ? Number(form.min_age) : undefined,
-      max_age: form.max_age ? Number(form.max_age) : undefined,
+      volunteers_needed: form.volunteers_needed !== "" ? Number(form.volunteers_needed) : undefined,
+      volunteers_enrolled: form.volunteers_enrolled !== "" ? Number(form.volunteers_enrolled) : 0,
+      goal_amount: form.goal_amount !== "" ? Number(form.goal_amount) : undefined,
+      collected_amount: form.collected_amount !== "" ? Number(form.collected_amount) : 0,
+      min_age: form.min_age !== "" ? Number(form.min_age) : undefined,
+      max_age: form.max_age !== "" ? Number(form.max_age) : undefined,
       is_active: true,
-    });
+    };
+    if (editingCampaign) {
+      updateCampaign.mutate({ id: editingCampaign.id, data: payload });
+    } else {
+      createCampaign.mutate(payload);
+    }
   };
+
+  const isBusy = createCampaign.isPending || updateCampaign.isPending;
 
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <h2 className="text-lg font-bold text-foreground">Active Campaigns</h2>
-        <Button size="sm" className="rounded-xl bg-primary hover:bg-primary/90 gap-1.5 text-xs" onClick={() => setShowForm(!showForm)}>
+        <Button size="sm" className="rounded-xl bg-primary hover:bg-primary/90 gap-1.5 text-xs" onClick={openCreate}>
           <Plus className="w-3.5 h-3.5" /> New Campaign
         </Button>
       </div>
 
       {showForm && (
         <div className="bg-white rounded-2xl border border-border p-5 shadow-sm space-y-3">
-          <h3 className="font-semibold text-sm text-foreground">Create Campaign</h3>
+          <h3 className="font-semibold text-sm text-foreground">{editingCampaign ? "Edit Campaign" : "Create Campaign"}</h3>
           <div className="grid md:grid-cols-2 gap-3">
             <Input placeholder="Campaign title *" value={form.title} onChange={e => setForm({ ...form, title: e.target.value })} className="rounded-xl" />
+
+            {/* Type toggle */}
             <div className="flex rounded-xl overflow-hidden border border-input">
               <button onClick={() => setForm({ ...form, type: "volunteers" })} className={`flex-1 text-xs py-2 font-medium transition-colors ${form.type === "volunteers" ? "bg-primary text-white" : "bg-white text-muted-foreground hover:bg-muted"}`}>
                 🤝 Volunteers
@@ -54,10 +109,27 @@ export default function CampaignsSection({ campaigns, ngoId }) {
                 💰 Fundraising
               </button>
             </div>
+
+            {/* Category */}
+            <div className="md:col-span-2">
+              <p className="text-xs text-muted-foreground mb-1.5 font-medium">Category</p>
+              <div className="flex flex-wrap gap-2">
+                {CATEGORIES.map(cat => (
+                  <button key={cat} type="button"
+                    onClick={() => setForm({ ...form, category: form.category === cat ? "" : cat })}
+                    className={`text-xs px-3 py-1 rounded-full border font-medium transition-colors ${form.category === cat ? "bg-primary text-white border-primary" : "bg-white text-muted-foreground border-border hover:border-primary hover:text-primary"}`}>
+                    {cat}
+                  </button>
+                ))}
+              </div>
+            </div>
+
             <Input placeholder="Location (e.g. Beirut, Gaza)" value={form.location} onChange={e => setForm({ ...form, location: e.target.value })} className="rounded-xl" />
             <Input placeholder="Short description" value={form.description} onChange={e => setForm({ ...form, description: e.target.value })} className="rounded-xl" />
             <Input type="date" placeholder="Start date" value={form.start_date} onChange={e => setForm({ ...form, start_date: e.target.value })} className="rounded-xl" />
             <Input type="date" placeholder="End date" value={form.end_date} onChange={e => setForm({ ...form, end_date: e.target.value })} className="rounded-xl" />
+            <Input type="date" placeholder="Sign-up deadline" value={form.signup_deadline} onChange={e => setForm({ ...form, signup_deadline: e.target.value })} className="rounded-xl md:col-span-2" />
+
             {form.type === "volunteers" && (
               <>
                 <Input type="number" placeholder="Volunteers needed" value={form.volunteers_needed} onChange={e => setForm({ ...form, volunteers_needed: e.target.value })} className="rounded-xl" />
@@ -72,26 +144,29 @@ export default function CampaignsSection({ campaigns, ngoId }) {
                 <Input type="number" placeholder="Already collected ($)" value={form.collected_amount} onChange={e => setForm({ ...form, collected_amount: e.target.value })} className="rounded-xl" />
               </>
             )}
-            <textarea placeholder="Requirements (what you're looking for in volunteers)" value={form.requirements} onChange={e => setForm({ ...form, requirements: e.target.value })}
+            <textarea placeholder="Requirements (what you're looking for in volunteers)" value={form.requirements}
+              onChange={e => setForm({ ...form, requirements: e.target.value })}
               className="md:col-span-2 w-full text-sm border border-input rounded-xl px-3 py-2 resize-none focus:outline-none focus:ring-1 focus:ring-ring" rows={3} />
           </div>
           <div className="flex gap-2 justify-end">
-            <Button size="sm" variant="outline" className="rounded-xl" onClick={() => setShowForm(false)}>Cancel</Button>
-            <Button size="sm" className="rounded-xl bg-primary hover:bg-primary/90" onClick={handleCreate} disabled={createCampaign.isPending}>
-              {createCampaign.isPending ? "Creating..." : "Launch Campaign"}
+            <Button size="sm" variant="outline" className="rounded-xl" onClick={closeForm}>Cancel</Button>
+            <Button size="sm" className="rounded-xl bg-primary hover:bg-primary/90" onClick={handleSubmit} disabled={isBusy}>
+              {isBusy ? "Saving..." : editingCampaign ? "Save Changes" : "Launch Campaign"}
             </Button>
           </div>
         </div>
       )}
 
-      {!campaigns?.length ? (
+      {!campaigns?.filter(c => c.is_active).length ? (
         <div className="bg-white rounded-2xl border border-border p-8 text-center text-muted-foreground text-sm">
           No active campaigns yet. Launch your first campaign!
         </div>
       ) : (
         <div className="grid md:grid-cols-2 gap-4">
           {campaigns.filter(c => c.is_active).map(c => (
-            <CampaignCard key={c.id} campaign={c} onClick={() => setSelectedCampaign(c)} />
+            <CampaignCard key={c.id} campaign={c}
+              onClick={() => setSelectedCampaign(c)}
+              onEdit={(e) => openEdit(c, e)} />
           ))}
         </div>
       )}
@@ -103,20 +178,31 @@ export default function CampaignsSection({ campaigns, ngoId }) {
   );
 }
 
-function CampaignCard({ campaign, onClick }) {
+function CampaignCard({ campaign, onClick, onEdit }) {
   const isFund = campaign.type === "fundraising";
-  const progress = isFund && campaign.goal_amount ? Math.min(100, Math.round((campaign.collected_amount / campaign.goal_amount) * 100)) : 0;
   const seatsLeft = campaign.volunteers_needed && campaign.volunteers_enrolled != null
     ? campaign.volunteers_needed - (campaign.volunteers_enrolled || 0)
     : null;
   const fewSeatsLeft = seatsLeft !== null && seatsLeft <= 10 && seatsLeft > 0;
+  const shortDesc = campaign.description
+    ? campaign.description.length > 50 ? campaign.description.slice(0, 50) + "…" : campaign.description
+    : null;
 
   return (
-    <div onClick={onClick} className="bg-white rounded-2xl border border-border p-5 shadow-sm space-y-3 cursor-pointer hover:shadow-md hover:border-primary/30 transition-all">
-      <div className="flex items-start gap-2">
+    <div onClick={onClick} className="bg-white rounded-2xl border border-border p-5 shadow-sm space-y-3 cursor-pointer hover:shadow-md hover:border-primary/30 transition-all relative group">
+      {/* Edit button */}
+      <button
+        onClick={onEdit}
+        className="absolute top-3 right-3 p-1.5 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity hover:bg-muted"
+        title="Edit campaign"
+      >
+        <Pencil className="w-3.5 h-3.5 text-muted-foreground" />
+      </button>
+
+      <div className="flex items-start gap-2 pr-7">
         <span className="text-lg">{isFund ? "💰" : "🤝"}</span>
-        <div className="flex-1">
-          <div className="flex items-start justify-between gap-2">
+        <div className="flex-1 min-w-0">
+          <div className="flex items-start justify-between gap-2 flex-wrap">
             <h3 className="font-semibold text-foreground text-sm leading-snug">{campaign.title}</h3>
             {fewSeatsLeft && (
               <span className="flex items-center gap-1 text-[10px] font-bold bg-orange-100 text-orange-600 px-2 py-0.5 rounded-full flex-shrink-0">
@@ -132,22 +218,9 @@ function CampaignCard({ campaign, onClick }) {
         </div>
       </div>
 
-      {campaign.description && (
-        <p className="text-xs text-foreground/70 leading-relaxed">{campaign.description}</p>
-      )}
+      {shortDesc && <p className="text-xs text-foreground/60 leading-relaxed">{shortDesc}</p>}
 
-      {isFund && campaign.goal_amount ? (
-        <div className="space-y-1.5">
-          <div className="flex justify-between text-xs text-muted-foreground">
-            <span className="font-medium text-primary">${(campaign.collected_amount || 0).toLocaleString()} raised</span>
-            <span>Goal: ${campaign.goal_amount.toLocaleString()}</span>
-          </div>
-          <div className="h-2 bg-muted rounded-full overflow-hidden">
-            <div className="h-full bg-gradient-to-r from-primary to-accent rounded-full transition-all" style={{ width: `${progress}%` }} />
-          </div>
-          <p className="text-xs text-muted-foreground">{progress}% of goal reached</p>
-        </div>
-      ) : campaign.volunteers_needed ? (
+      {!isFund && campaign.volunteers_needed ? (
         <div className="flex items-center gap-1.5 text-xs text-primary font-medium">
           <Users className="w-3.5 h-3.5" />
           {campaign.volunteers_needed} volunteers needed
