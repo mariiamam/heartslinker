@@ -353,7 +353,7 @@ function HoursRequests({ hourEntries, activities, qc }) {
   );
 }
 
-function ParticipationRequests({ requests, campaigns, qc }) {
+function ParticipationRequests({ requests, campaigns, ngo, qc }) {
   const pending = requests.filter(r => r.status === "pending");
   const reviewed = requests.filter(r => r.status !== "pending");
   const [cvModal, setCVModal] = useState(null); // { email, name }
