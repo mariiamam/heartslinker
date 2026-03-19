@@ -98,7 +98,10 @@ export default function CampaignsSection({ campaigns, ngoId }) {
         <div className="bg-white rounded-2xl border border-border p-5 shadow-sm space-y-3">
           <h3 className="font-semibold text-sm text-foreground">{editingCampaign ? "Edit Campaign" : "Create Campaign"}</h3>
           <div className="grid md:grid-cols-2 gap-3">
-            <Input placeholder="Campaign title *" value={form.title} onChange={e => setForm({ ...form, title: e.target.value })} className="rounded-xl" />
+            <div className="relative">
+              <Input placeholder="Campaign name" value={form.title} onChange={e => setForm({ ...form, title: e.target.value })} className="rounded-xl" />
+              <span className="absolute top-2 right-3 text-red-500 text-xs font-bold">*</span>
+            </div>
 
             {/* Type toggle */}
             <div className="flex rounded-xl overflow-hidden border border-input">
