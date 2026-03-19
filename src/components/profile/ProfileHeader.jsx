@@ -45,14 +45,16 @@ export default function ProfileHeader({ profile, user, activities = [], hourEntr
 
           {/* Name & meta */}
           <div className="flex-1 pb-1">
-            <div className="flex flex-col gap-1">
-              <h1 className="text-2xl font-bold text-foreground font-inter">
-                {user?.full_name || "Anonymous Hero"}
-              </h1>
-              <span className="inline-flex items-center gap-1 text-xs font-bold text-white bg-gradient-to-r from-primary to-accent px-2.5 py-0.5 rounded-full shadow-sm">
-                <Zap className="w-3 h-3" /> Change Maker
-              </span>
-              </div>
+          <div className="flex flex-col gap-1">
+           <h1 className="text-2xl font-bold text-foreground font-inter">
+             {user?.full_name || "Anonymous Hero"}
+           </h1>
+           <span className="inline-block w-fit">
+             <span className="inline-flex items-center gap-1 text-xs font-bold text-white bg-gradient-to-r from-primary to-accent px-2.5 py-0.5 rounded-full shadow-sm">
+               <Zap className="w-3 h-3" /> Change Maker
+             </span>
+           </span>
+          </div>
           </div>
 
           {/* Actions */}
