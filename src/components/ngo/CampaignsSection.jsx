@@ -112,7 +112,7 @@ export default function CampaignsSection({ campaigns, ngoId }) {
 
             {/* Category */}
             <div className="md:col-span-2">
-              <p className="text-xs text-muted-foreground mb-1.5 font-medium">Category</p>
+              <p className="text-xs text-muted-foreground mb-1.5 font-medium">Category <span className="text-red-500 text-[10px]">*</span></p>
               <div className="flex flex-wrap gap-2">
                 {CATEGORIES.map(cat => (
                   <button key={cat} type="button"
