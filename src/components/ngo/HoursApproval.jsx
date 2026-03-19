@@ -124,6 +124,11 @@ function HourRow({ entry, activity, onApprove, onReject, isLoading }) {
           {entry.date && <span>{format(new Date(entry.date), "MMM d, yyyy")}</span>}
           <span>Submitted by: {entry.submitted_by}</span>
           {entry.note && <span>Note: {entry.note}</span>}
+          {entry.reviewed_at && (
+            <span className="text-green-600 font-medium">
+              {entry.status === "approved" ? "✓ Approved" : "✗ Rejected"} {format(new Date(entry.reviewed_at), "MMM d, yyyy")}
+            </span>
+          )}
         </div>
       </div>
       {entry.status === "pending" && (
