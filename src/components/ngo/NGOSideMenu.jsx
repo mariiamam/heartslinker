@@ -359,6 +359,14 @@ function ParticipationRequests({ requests, campaigns, qc }) {
   const updateRequest = useMutation({
     mutationFn: async ({ id, status, req }) => {
       await base44.entities.CampaignParticipationRequest.update(id, { status });
+      // If accepted, increment volunteers_enrolled on the campaign
+      if (status === "accepted") {
+        const campaign = campaigns.find(c => c.id === req.campaign_id);
+        if (campaign) {
+          const newEnrolled = (campaign.volunteers_enrolled || 0) + 1;
+          await base44.entities.Campaign.update(campaign.id, { volunteers_enrolled: newEnrolled });
+        }
+      }
       // Send notification to volunteer
       await base44.entities.Notification.create({
         user_email: req.user_email,
@@ -368,7 +376,10 @@ function ParticipationRequests({ requests, campaigns, qc }) {
         is_read: false,
       });
     },
-    onSuccess: () => qc.invalidateQueries(["participation-requests"]),
+    onSuccess: () => {
+      qc.invalidateQueries(["participation-requests"]);
+      qc.invalidateQueries(["campaigns"]);
+    },
   });
 
   return (
