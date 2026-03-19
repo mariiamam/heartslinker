@@ -674,19 +674,20 @@ function ParticipationRequests({ requests, campaigns, ngo, qc }) {
 
       // Send notification to volunteer
       await base44.entities.Notification.create({
-        user_email: req.user_email,
-        type: status === "accepted" ? "volunteering_accepted" : "volunteering_rejected",
-        title: status === "accepted" ? "Request Accepted! 🎉" : "Request Rejected",
-        message: `Your request to join "${req.campaign_title || "the campaign"}" has been ${status}.`,
-        is_read: false,
+       user_email: req.user_email,
+       type: status === "accepted" ? "volunteering_accepted" : "volunteering_rejected",
+       title: status === "accepted" ? "Request Accepted! 🎉" : "Request Rejected",
+       message: `Your request to join "${req.campaign_title || "the campaign"}" has been ${status}.`,
+       link_id: req.campaign_id,
+       is_read: false,
       });
-    },
-    onSuccess: () => {
+      },
+      onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["participation-requests"] });
       qc.invalidateQueries({ queryKey: ["campaigns"] });
-      qc.invalidateQueries({ queryKey: ["my-activities"] });
-      qc.invalidateQueries({ queryKey: ["notifications"] });
-    },
+      qc.invalidateQueries({ queryKey: ["my-activities", undefined] });
+      qc.invalidateQueries({ queryKey: ["notifications", undefined] });
+      },
   });
 
   return (
