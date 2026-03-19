@@ -20,7 +20,7 @@ export default function NGOSideMenu({ ngo, campaigns, activities, hourEntries, p
       {/* Hamburger button */}
       <button
         onClick={() => setOpen(true)}
-        className="fixed top-5 right-5 z-40 bg-white border border-border rounded-xl p-2.5 shadow-md hover:bg-muted transition-colors relative"
+        className="fixed top-5 left-5 z-40 bg-white border border-border rounded-xl p-2.5 shadow-md hover:bg-muted transition-colors relative"
       >
           <Menu className="w-5 h-5 text-foreground" />
         {totalBadge > 0 && (
