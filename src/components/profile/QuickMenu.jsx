@@ -9,7 +9,7 @@ const PANELS = [
   { key: "settings", label: "Settings", icon: Settings, color: "bg-secondary text-secondary-foreground" },
 ];
 
-export default function QuickMenu({ activePanel, onSelect }) {
+export default function QuickMenu({ activePanel, onSelect, unreadNotifications = 0 }) {
   const [open, setOpen] = useState(false);
 
   const handleSelect = (key) => {
@@ -21,10 +21,15 @@ export default function QuickMenu({ activePanel, onSelect }) {
     <div className="relative">
       <button
         onClick={() => setOpen(o => !o)}
-        className="p-2.5 rounded-2xl bg-muted border border-border hover:bg-secondary transition-colors text-muted-foreground hover:text-foreground"
+        className="p-2.5 rounded-2xl bg-muted border border-border hover:bg-secondary transition-colors text-muted-foreground hover:text-foreground relative"
         title="Menu"
       >
         {open ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+        {unreadNotifications > 0 && (
+          <span className="absolute -top-1.5 -right-1.5 bg-primary text-white text-[10px] font-bold rounded-full w-5 h-5 flex items-center justify-center">
+            {unreadNotifications}
+          </span>
+        )}
       </button>
 
       {open && (
