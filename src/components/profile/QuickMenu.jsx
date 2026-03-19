@@ -4,7 +4,7 @@ import { Menu, X, Settings, Bell, Briefcase, BarChart2, FileText } from "lucide-
 const PANELS = [
   { key: "analytics", label: "Impact Analytics", icon: BarChart2, color: "bg-primary/10 text-primary" },
   { key: "updates", label: "My Updates", icon: Bell, color: "bg-amber-100 text-amber-600" },
-  { key: "campaigns", label: "My Campaigns & Activities", icon: Briefcase, color: "bg-green-100 text-green-600" },
+  { key: "campaigns", label: "Campaigns I Joined", icon: Briefcase, color: "bg-green-100 text-green-600" },
   { key: "cv", label: "My CV", icon: FileText, color: "bg-orange-100 text-orange-600" },
   { key: "settings", label: "Settings", icon: Settings, color: "bg-secondary text-secondary-foreground" },
 ];

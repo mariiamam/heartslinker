@@ -92,7 +92,7 @@ export default function ImpactProfile() {
                 <h1 className="text-xl font-bold text-foreground">
                   {activePanel === "analytics" && "Impact Analytics"}
                   {activePanel === "updates" && "My Updates"}
-                  {activePanel === "campaigns" && "My Campaigns & Activities"}
+                  {activePanel === "campaigns" && "Campaigns I Joined"}
                   {activePanel === "settings" && "Settings"}
                 </h1>
                 <button
