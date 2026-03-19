@@ -3,7 +3,7 @@ import { base44 } from "@/api/base44Client";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Plus, Users, MapPin, AlertTriangle, Pencil } from "lucide-react";
+import { Plus, Users, MapPin, AlertTriangle, Pencil, CheckCircle, ChevronDown, ChevronUp } from "lucide-react";
 import CampaignDetailModal from "./CampaignDetailModal";
 
 const EMPTY_FORM = {
@@ -17,9 +17,10 @@ const CATEGORIES = ["Food", "Education", "Shelter", "Health", "Environment", "Re
 
 export default function CampaignsSection({ campaigns, ngoId }) {
   const [showForm, setShowForm] = useState(false);
-  const [editingCampaign, setEditingCampaign] = useState(null); // campaign being edited
+  const [editingCampaign, setEditingCampaign] = useState(null);
   const [selectedCampaign, setSelectedCampaign] = useState(null);
   const [form, setForm] = useState(EMPTY_FORM);
+  const [showAll, setShowAll] = useState(false);
   const qc = useQueryClient();
 
   const createCampaign = useMutation({
@@ -30,6 +31,11 @@ export default function CampaignsSection({ campaigns, ngoId }) {
   const updateCampaign = useMutation({
     mutationFn: ({ id, data }) => base44.entities.Campaign.update(id, data),
     onSuccess: () => { qc.invalidateQueries(["campaigns"]); closeForm(); },
+  });
+
+  const completeCampaign = useMutation({
+    mutationFn: (id) => base44.entities.Campaign.update(id, { is_active: false }),
+    onSuccess: () => qc.invalidateQueries(["campaigns"]),
   });
 
   const openCreate = () => {
@@ -65,16 +71,20 @@ export default function CampaignsSection({ campaigns, ngoId }) {
 
   const handleSubmit = () => {
     if (!form.title || !form.location || !form.description || !form.category) return;
+    const volunteersNeeded = form.volunteers_needed !== "" ? Number(form.volunteers_needed) : undefined;
+    const volunteersEnrolled = form.volunteers_enrolled !== "" ? Number(form.volunteers_enrolled) : 0;
+    // Auto-complete if volunteers are full
+    const isFull = volunteersNeeded && volunteersEnrolled >= volunteersNeeded;
     const payload = {
       ...form,
       ngo_id: ngoId,
-      volunteers_needed: form.volunteers_needed !== "" ? Number(form.volunteers_needed) : undefined,
-      volunteers_enrolled: form.volunteers_enrolled !== "" ? Number(form.volunteers_enrolled) : 0,
+      volunteers_needed: volunteersNeeded,
+      volunteers_enrolled: volunteersEnrolled,
       goal_amount: form.goal_amount !== "" ? Number(form.goal_amount) : undefined,
       collected_amount: form.collected_amount !== "" ? Number(form.collected_amount) : 0,
       min_age: form.min_age !== "" ? Number(form.min_age) : undefined,
       max_age: form.max_age !== "" ? Number(form.max_age) : undefined,
-      is_active: true,
+      is_active: !isFull,
     };
     if (editingCampaign) {
       updateCampaign.mutate({ id: editingCampaign.id, data: payload });
@@ -85,6 +95,9 @@ export default function CampaignsSection({ campaigns, ngoId }) {
 
   const isBusy = createCampaign.isPending || updateCampaign.isPending;
   const isInvalid = !form.title || !form.location || !form.description || !form.category;
+
+  const activeCampaigns = campaigns?.filter(c => c.is_active) || [];
+  const visibleCampaigns = showAll ? activeCampaigns : activeCampaigns.slice(0, 2);
 
   return (
     <div className="space-y-4">
@@ -144,6 +157,11 @@ export default function CampaignsSection({ campaigns, ngoId }) {
               <label className="text-xs text-muted-foreground mb-1 block font-medium">To</label>
               <Input type="date" value={form.end_date} onChange={e => setForm({ ...form, end_date: e.target.value })} className="rounded-xl" />
             </div>
+            <div className="md:col-span-2">
+              <label className="text-xs text-muted-foreground mb-1 block font-medium">Application Deadline</label>
+              <Input type="date" value={form.signup_deadline} onChange={e => setForm({ ...form, signup_deadline: e.target.value })} className="rounded-xl" />
+              <p className="text-[10px] text-muted-foreground mt-1">Last date volunteers are allowed to apply</p>
+            </div>
 
             {form.type === "volunteers" && (
               <>
@@ -172,18 +190,35 @@ export default function CampaignsSection({ campaigns, ngoId }) {
         </div>
       )}
 
-      {!campaigns?.filter(c => c.is_active).length ? (
+      {!activeCampaigns.length ? (
         <div className="bg-white rounded-2xl border border-border p-8 text-center text-muted-foreground text-sm">
           No active campaigns yet. Launch your first campaign!
         </div>
       ) : (
-        <div className="grid md:grid-cols-2 gap-4">
-          {campaigns.filter(c => c.is_active).map(c => (
-            <CampaignCard key={c.id} campaign={c}
-              onClick={() => setSelectedCampaign(c)}
-              onEdit={(e) => openEdit(c, e)} />
-          ))}
-        </div>
+        <>
+          <div className="grid md:grid-cols-2 gap-4">
+            {visibleCampaigns.map(c => (
+              <CampaignCard key={c.id} campaign={c}
+                onClick={() => setSelectedCampaign(c)}
+                onEdit={(e) => openEdit(c, e)}
+                onComplete={(e) => { e.stopPropagation(); completeCampaign.mutate(c.id); }}
+              />
+            ))}
+          </div>
+
+          {activeCampaigns.length > 2 && (
+            <button
+              onClick={() => setShowAll(v => !v)}
+              className="w-full flex items-center justify-center gap-1.5 text-sm text-primary font-medium py-2 hover:underline"
+            >
+              {showAll ? (
+                <><ChevronUp className="w-4 h-4" /> Show Less</>
+              ) : (
+                <><ChevronDown className="w-4 h-4" /> Show {activeCampaigns.length - 2} More</>
+              )}
+            </button>
+          )}
+        </>
       )}
 
       {selectedCampaign && (
@@ -193,7 +228,7 @@ export default function CampaignsSection({ campaigns, ngoId }) {
   );
 }
 
-function CampaignCard({ campaign, onClick, onEdit }) {
+function CampaignCard({ campaign, onClick, onEdit, onComplete }) {
   const isFund = campaign.type === "fundraising";
   const seatsLeft = campaign.volunteers_needed && campaign.volunteers_enrolled != null
     ? campaign.volunteers_needed - (campaign.volunteers_enrolled || 0)
@@ -209,16 +244,25 @@ function CampaignCard({ campaign, onClick, onEdit }) {
       <div className="h-1.5 bg-gradient-to-r from-primary to-accent w-full" />
 
       <div className="p-5 space-y-3">
-        {/* Edit button */}
-        <button
-          onClick={onEdit}
-          className="absolute top-5 right-3 p-1.5 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity hover:bg-muted"
-          title="Edit campaign"
-        >
-          <Pencil className="w-3.5 h-3.5 text-muted-foreground" />
-        </button>
+        {/* Action buttons */}
+        <div className="absolute top-4 right-3 flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+          <button
+            onClick={onEdit}
+            className="p-1.5 rounded-xl hover:bg-muted"
+            title="Edit campaign"
+          >
+            <Pencil className="w-3.5 h-3.5 text-muted-foreground" />
+          </button>
+          <button
+            onClick={onComplete}
+            className="p-1.5 rounded-xl hover:bg-green-50"
+            title="Mark as completed"
+          >
+            <CheckCircle className="w-3.5 h-3.5 text-green-500" />
+          </button>
+        </div>
 
-        <div className="flex items-start gap-2 pr-7">
+        <div className="flex items-start gap-2 pr-14">
           <span className="text-lg">{isFund ? "💰" : "🤝"}</span>
           <div className="flex-1 min-w-0">
             <div className="flex items-start justify-between gap-2 flex-wrap">
