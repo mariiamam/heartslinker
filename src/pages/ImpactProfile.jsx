@@ -78,11 +78,24 @@ export default function ImpactProfile() {
   const publicActivities = activities.filter(a => a.is_visible !== false);
   const unreadNotifications = notifications.filter(n => !n.is_read).length;
 
+  const handleOnboardingComplete = async (appRole) => {
+    const updatedUser = await base44.auth.me();
+    setUser(updatedUser);
+    if (appRole === "ngo") {
+      window.location.href = "/NGODashboard";
+    }
+  };
+
   if (!user) return (
     <div className="min-h-screen bg-background flex items-center justify-center">
       <div className="w-8 h-8 border-4 border-primary/30 border-t-primary rounded-full animate-spin" />
     </div>
   );
+
+  // Show onboarding if not yet complete
+  if (!user.onboarding_complete) {
+    return <OnboardingFlow user={user} onComplete={handleOnboardingComplete} />;
+  }
 
   return (
     <div className="min-h-screen bg-background font-inter">
