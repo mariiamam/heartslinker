@@ -25,7 +25,22 @@ export default function CampaignsSection({ campaigns, ngoId }) {
   const qc = useQueryClient();
 
   const createCampaign = useMutation({
-    mutationFn: (data) => base44.entities.Campaign.create(data),
+    mutationFn: async (data) => {
+      const campaign = await base44.entities.Campaign.create(data);
+      // Notify all followers of this NGO
+      const followers = await base44.entities.NGOFollow.filter({ ngo_id: ngoId });
+      await Promise.all(followers.map(f =>
+        base44.entities.Notification.create({
+          user_email: f.user_email,
+          type: "campaign_new",
+          title: `New Campaign: ${data.title}`,
+          message: `A new campaign has been launched by an NGO you follow.`,
+          link_id: campaign.id,
+          is_read: false,
+        })
+      ));
+      return campaign;
+    },
     onSuccess: () => { qc.invalidateQueries(["campaigns"]); closeForm(); },
   });
 
