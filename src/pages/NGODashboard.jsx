@@ -15,10 +15,19 @@ import NGOSideMenu from "@/components/ngo/NGOSideMenu";
 
 export default function NGODashboard() {
   const [user, setUser] = useState(null);
+  const qc = useQueryClient();
 
   useEffect(() => {
     base44.auth.me().then(setUser).catch(() => {});
   }, []);
+
+  // Real-time subscription so new participation requests show instantly
+  useEffect(() => {
+    const unsub = base44.entities.CampaignParticipationRequest.subscribe(() => {
+      qc.invalidateQueries({ queryKey: ["participation-requests"] });
+    });
+    return unsub;
+  }, [qc]);
 
   const { data: ngos = [] } = useQuery({
     queryKey: ["my-ngo", user?.email],
