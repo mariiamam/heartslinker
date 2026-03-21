@@ -569,6 +569,136 @@ function VolunteerBook({ activities, hourEntries, ngo }) {
   );
 }
 
+function LogHoursPanel({ campaigns, activities, qc }) {
+  const activeCampaigns = campaigns.filter(c => c.is_active);
+  const [selectedCampaign, setSelectedCampaign] = useState(null);
+  const [selectedActivity, setSelectedActivity] = useState(null); // the Activity record for this volunteer+campaign
+  const [form, setForm] = useState({ date: "", hours: "", note: "" });
+  const [done, setDone] = useState(false);
+
+  const campaignVolunteers = selectedCampaign
+    ? activities.filter(a => a.campaign_id === selectedCampaign.id)
+    : [];
+
+  const submitHours = useMutation({
+    mutationFn: () =>
+      base44.entities.HourEntry.create({
+        activity_id: selectedActivity.id,
+        user_email: selectedActivity.user_email,
+        date: form.date,
+        hours: Number(form.hours),
+        submitted_by: "ngo",
+        status: "approved",
+        note: form.note || "Logged by NGO",
+      }),
+    onSuccess: async () => {
+      // Notify volunteer
+      await base44.entities.Notification.create({
+        user_email: selectedActivity.user_email,
+        type: "hour_approved",
+        title: "Hours Logged ✅",
+        message: `${form.hours}h were added for "${selectedActivity.title}" by the NGO.`,
+        is_read: false,
+      });
+      qc.invalidateQueries(["hour-entries"]);
+      qc.invalidateQueries(["my-hour-entries"]);
+      setDone(true);
+      setTimeout(() => {
+        setDone(false);
+        setSelectedActivity(null);
+        setForm({ date: "", hours: "", note: "" });
+      }, 1500);
+    },
+  });
+
+  if (!activeCampaigns.length) {
+    return (
+      <div className="p-10 text-center">
+        <p className="text-3xl mb-2">📋</p>
+        <p className="text-sm text-muted-foreground">No active campaigns found.</p>
+      </div>
+    );
+  }
+
+  return (
+    <div className="p-5 space-y-4">
+      {/* Step 1: Pick campaign */}
+      <div>
+        <p className="text-xs font-bold text-muted-foreground uppercase tracking-wide mb-2">1. Select Campaign</p>
+        <div className="space-y-2">
+          {activeCampaigns.map(c => (
+            <button
+              key={c.id}
+              onClick={() => { setSelectedCampaign(c); setSelectedActivity(null); setForm({ date: "", hours: "", note: "" }); }}
+              className={`w-full text-left flex items-center gap-3 px-4 py-3 rounded-2xl border transition-colors ${selectedCampaign?.id === c.id ? "border-primary bg-primary/5" : "border-border hover:bg-muted/40"}`}
+            >
+              <span className="text-lg">🤝</span>
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-semibold text-foreground truncate">{c.title}</p>
+                <p className="text-xs text-muted-foreground">{campaignVolunteers.length > 0 && selectedCampaign?.id === c.id ? `${activities.filter(a => a.campaign_id === c.id).length} volunteers` : `${activities.filter(a => a.campaign_id === c.id).length} volunteers`}</p>
+              </div>
+              {selectedCampaign?.id === c.id && <Check className="w-4 h-4 text-primary flex-shrink-0" />}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* Step 2: Pick volunteer */}
+      {selectedCampaign && (
+        <div>
+          <p className="text-xs font-bold text-muted-foreground uppercase tracking-wide mb-2">2. Select Volunteer</p>
+          {campaignVolunteers.length === 0 ? (
+            <p className="text-sm text-muted-foreground text-center py-4">No volunteers in this campaign yet.</p>
+          ) : (
+            <div className="space-y-2">
+              {campaignVolunteers.map(act => (
+                <button
+                  key={act.id}
+                  onClick={() => { setSelectedActivity(act); setForm({ date: "", hours: "", note: "" }); setDone(false); }}
+                  className={`w-full text-left flex items-center gap-3 px-4 py-3 rounded-2xl border transition-colors ${selectedActivity?.id === act.id ? "border-primary bg-primary/5" : "border-border hover:bg-muted/40"}`}
+                >
+                  <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold text-sm flex-shrink-0">
+                    {act.user_email[0]?.toUpperCase()}
+                  </div>
+                  <p className="text-sm font-medium text-foreground truncate flex-1">{act.user_email}</p>
+                  {selectedActivity?.id === act.id && <Check className="w-4 h-4 text-primary flex-shrink-0" />}
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Step 3: Log hours form */}
+      {selectedActivity && (
+        <div className="bg-muted/30 border border-border rounded-2xl p-4 space-y-3">
+          <p className="text-xs font-bold text-muted-foreground uppercase tracking-wide mb-1">3. Log Hours</p>
+          <p className="text-xs text-muted-foreground">For <span className="font-semibold text-foreground">{selectedActivity.user_email}</span> in <span className="font-semibold text-foreground">{selectedCampaign.title}</span></p>
+          <div className="grid grid-cols-2 gap-2">
+            <div>
+              <p className="text-[10px] text-muted-foreground mb-1">Date *</p>
+              <Input type="date" value={form.date} onChange={e => setForm({ ...form, date: e.target.value })} className="rounded-xl text-sm h-8" />
+            </div>
+            <div>
+              <p className="text-[10px] text-muted-foreground mb-1">Hours *</p>
+              <Input type="number" placeholder="e.g. 4" value={form.hours} onChange={e => setForm({ ...form, hours: e.target.value })} className="rounded-xl text-sm h-8" />
+            </div>
+          </div>
+          <Input placeholder="Note (optional)" value={form.note} onChange={e => setForm({ ...form, note: e.target.value })} className="rounded-xl text-sm h-8" />
+          <Button
+            size="sm"
+            className={`w-full rounded-xl gap-2 text-xs ${done ? "bg-green-600 hover:bg-green-600" : "bg-primary hover:bg-primary/90"}`}
+            disabled={!form.date || !form.hours || submitHours.isPending || done}
+            onClick={() => submitHours.mutate()}
+          >
+            {done ? <><Check className="w-3.5 h-3.5" /> Hours Added!</> : submitHours.isPending ? "Saving..." : <><Send className="w-3.5 h-3.5" /> Add Verified Hours</>}
+          </Button>
+        </div>
+      )}
+    </div>
+  );
+}
+
 function HoursRequests({ hourEntries, activities, qc }) {
   const pending = hourEntries.filter(h => h.status === "pending");
   const reviewed = hourEntries.filter(h => h.status !== "pending");
