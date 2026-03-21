@@ -241,15 +241,37 @@ export default function LogHours() {
 
         {/* Form */}
         <div className="bg-white border border-border rounded-2xl p-5 shadow-sm space-y-4">
-          <div className="grid grid-cols-2 gap-3">
-            <div>
-              <label className="text-xs font-medium text-muted-foreground mb-1 block">Date *</label>
-              <Input type="date" value={form.date} onChange={e => setForm({ ...form, date: e.target.value })} className="rounded-xl" />
+          <div>
+            <label className="text-xs font-medium text-muted-foreground mb-1 block">Date *</label>
+            <div className="grid grid-cols-3 gap-2">
+              <select
+                value={dateDay}
+                onChange={e => { setDateDay(e.target.value); handleDateChange(e.target.value, dateMonth, dateYear); }}
+                className="h-9 rounded-xl border border-input bg-transparent px-2 text-sm focus:outline-none focus:ring-1 focus:ring-ring"
+              >
+                <option value="">Day</option>
+                {days.map(d => <option key={d} value={d}>{d}</option>)}
+              </select>
+              <select
+                value={dateMonth}
+                onChange={e => { setDateMonth(e.target.value); handleDateChange(dateDay, e.target.value, dateYear); }}
+                className="h-9 rounded-xl border border-input bg-transparent px-2 text-sm focus:outline-none focus:ring-1 focus:ring-ring"
+              >
+                <option value="">Month</option>
+                {months.map(m => <option key={m.value} value={m.value}>{m.label}</option>)}
+              </select>
+              <select
+                value={dateYear}
+                onChange={e => { setDateYear(e.target.value); handleDateChange(dateDay, dateMonth, e.target.value); }}
+                className="h-9 rounded-xl border border-input bg-transparent px-2 text-sm focus:outline-none focus:ring-1 focus:ring-ring"
+              >
+                {years.map(y => <option key={y} value={y}>{y}</option>)}
+              </select>
             </div>
-            <div>
-              <label className="text-xs font-medium text-muted-foreground mb-1 block">Hours *</label>
-              <Input type="number" placeholder="e.g. 4" value={form.hours} onChange={e => setForm({ ...form, hours: e.target.value })} className="rounded-xl" />
-            </div>
+          </div>
+          <div>
+            <label className="text-xs font-medium text-muted-foreground mb-1 block">Hours *</label>
+            <Input type="number" placeholder="e.g. 4" value={form.hours} onChange={e => setForm({ ...form, hours: e.target.value })} className="rounded-xl" />
           </div>
           <div>
             <label className="text-xs font-medium text-muted-foreground mb-1 block">Note (optional)</label>
