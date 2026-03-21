@@ -6,6 +6,7 @@ import PageNotFound from './lib/PageNotFound';
 import { AuthProvider, useAuth } from '@/lib/AuthContext';
 import UserNotRegisteredError from '@/components/UserNotRegisteredError';
 // Add page imports here
+import LogHours from "./pages/LogHours";
 import ImpactProfile from "./pages/ImpactProfile";
 import NGODashboard from "./pages/NGODashboard";
 import Landing from "./pages/Landing";
@@ -59,6 +60,7 @@ const AuthenticatedApp = () => {
       <Route path="/SocialFeed" element={<SocialFeed />} />
       <Route path="/NGOProfile" element={<NGOProfile />} />
       <Route path="/PublicUserProfile" element={<PublicUserProfile />} />
+      <Route path="/LogHours" element={<LogHours />} />
       <Route path="*" element={<PageNotFound />} />
     </Routes>
   );
