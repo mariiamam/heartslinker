@@ -648,18 +648,16 @@ function ParticipationRequests({ requests, campaigns, ngo, qc }) {
           await base44.entities.Campaign.update(campaign.id, { volunteers_enrolled: newEnrolled });
         }
 
-        // Add to volunteer book (Activity) only if not already there for this NGO
-        const ngoId = req.ngo_id;
+        // Add to volunteer book (Activity) — one entry per campaign
         const existingActivities = await base44.entities.Activity.filter({
-          ngo_id: ngoId,
+          campaign_id: req.campaign_id,
           user_email: req.user_email,
         });
 
         if (existingActivities.length === 0) {
-          // New volunteer for this NGO — add to book
           await base44.entities.Activity.create({
             user_email: req.user_email,
-            ngo_id: ngoId,
+            ngo_id: req.ngo_id,
             ngo_name: ngo?.name || "",
             campaign_id: req.campaign_id,
             title: req.campaign_title || campaign?.title || "Campaign Volunteer",
@@ -669,7 +667,6 @@ function ParticipationRequests({ requests, campaigns, ngo, qc }) {
             is_visible: true,
           });
         }
-        // If already exists — do nothing (volunteer already in the book for this NGO)
       }
 
       // Send notification to volunteer
