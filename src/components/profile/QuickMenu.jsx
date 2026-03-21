@@ -54,6 +54,18 @@ export default function QuickMenu({ activePanel, onSelect, unreadNotifications =
                 {p.label}
               </button>
             ))}
+            <div className="border-t border-border mt-1 pt-1">
+              {LINKS.map(l => (
+                <Link key={l.href} to={l.href} onClick={() => setOpen(false)}>
+                  <div className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-colors text-left hover:bg-muted text-foreground">
+                    <div className={`w-8 h-8 rounded-xl flex items-center justify-center flex-shrink-0 ${l.color}`}>
+                      <l.icon className="w-4 h-4" />
+                    </div>
+                    {l.label}
+                  </div>
+                </Link>
+              ))}
+            </div>
           </div>
         </div>
       )}
