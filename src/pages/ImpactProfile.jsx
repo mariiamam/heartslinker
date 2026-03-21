@@ -118,7 +118,7 @@ export default function ImpactProfile() {
               <div className="flex items-center justify-between mb-6">
                 <h1 className="text-xl font-bold text-foreground">
                   {activePanel === "analytics" && "Impact Analytics"}
-                  {activePanel === "updates" && "My Updates"}
+                  {activePanel === "updates" && "Notifications"}
                   {activePanel === "campaigns" && "Campaigns I Joined"}
                   {activePanel === "settings" && "Settings"}
                 </h1>
