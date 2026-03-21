@@ -70,7 +70,7 @@ export default function NGOSideMenu({ ngo, campaigns, activities, hourEntries, p
 
         {/* Quick Log Hours button */}
         <button
-          onClick={() => { setOpen(true); setSection("log-hours"); }}
+          onClick={() => { window.location.href = "/LogHours"; }}
           className="inline-flex items-center justify-center bg-primary text-white rounded-xl p-2.5 shadow-sm hover:bg-primary/90 transition-colors"
           title="Log Hours for a Volunteer"
         >
