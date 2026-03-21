@@ -41,17 +41,17 @@ export default function CampaignsSection({ campaigns, ngoId }) {
       ));
       return campaign;
     },
-    onSuccess: () => { qc.invalidateQueries(["campaigns"]); closeForm(); },
+    onSuccess: () => { qc.invalidateQueries({ queryKey: ["ngo-campaigns"] }); closeForm(); },
   });
 
   const updateCampaign = useMutation({
     mutationFn: ({ id, data }) => base44.entities.Campaign.update(id, data),
-    onSuccess: () => { qc.invalidateQueries(["campaigns"]); closeForm(); },
+    onSuccess: () => { qc.invalidateQueries({ queryKey: ["ngo-campaigns"] }); closeForm(); },
   });
 
   const completeCampaign = useMutation({
     mutationFn: (id) => base44.entities.Campaign.update(id, { is_active: false }),
-    onSuccess: () => qc.invalidateQueries(["campaigns"]),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["ngo-campaigns"] }),
   });
 
   const openCreate = () => {
