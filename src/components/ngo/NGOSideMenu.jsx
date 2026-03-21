@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { base44 } from "@/api/base44Client";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { Menu, X, Settings, BookOpen, Users, ImagePlus, Check, Instagram, Facebook, MapPin, Calendar, Tag, Clock, UserPlus, FileText, ChevronDown, ChevronUp, Trash2, XCircle } from "lucide-react";
+import { Menu, X, Settings, BookOpen, Users, ImagePlus, Check, Instagram, Facebook, MapPin, Calendar, Tag, Clock, UserPlus, FileText, ChevronDown, ChevronUp, Trash2, XCircle, Plus, Send } from "lucide-react";
 import { format } from "date-fns";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
