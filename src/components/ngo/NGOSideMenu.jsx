@@ -89,7 +89,7 @@ export default function NGOSideMenu({ ngo, campaigns, activities, hourEntries, p
           {/* Header */}
           <div className="flex items-center justify-between px-5 py-4 border-b border-border">
             <h2 className="font-bold text-foreground text-lg">
-              {section === "settings" ? "Settings" : section === "history" ? "Campaign History" : section === "volunteers" ? "Volunteer Book" : section === "hours" ? "Hours Requests" : section === "participation" ? "Participation Requests" : section === "log-hours" ? "Log Volunteer Hours" : "Menu"}
+              {section === "settings" ? "Settings" : section === "history" ? "Campaign History" : section === "volunteers" ? "Volunteer Book" : section === "hours" ? "Hours Requests" : section === "participation" ? "Participation Requests" : "Menu"}
             </h2>
             <button onClick={() => { if (section) setSection(null); else { setOpen(false); } }}>
               <X className="w-5 h-5 text-muted-foreground hover:text-foreground" />
@@ -113,7 +113,7 @@ export default function NGOSideMenu({ ngo, campaigns, activities, hourEntries, p
             {section === "volunteers" && <VolunteerBook activities={activities} hourEntries={hourEntries} ngo={ngo} />}
             {section === "hours" && <HoursRequests hourEntries={hourEntries} activities={activities} qc={qc} />}
             {section === "participation" && <ParticipationRequests requests={participationRequests || []} campaigns={campaigns} ngo={ngo} qc={qc} />}
-            {section === "log-hours" && <LogHoursPanel campaigns={campaigns} activities={activities} qc={qc} />}
+
           </div>
         </div>
       )}
