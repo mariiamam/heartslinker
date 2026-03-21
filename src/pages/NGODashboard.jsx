@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
+import OnboardingFlow from "@/components/onboarding/OnboardingFlow";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import VolunteersList from "@/components/ngo/VolunteersList";
 import ActivitiesPanel from "@/components/ngo/ActivitiesPanel";
@@ -61,11 +62,23 @@ export default function NGODashboard() {
     enabled: !!ngo?.id,
   });
 
+  const handleOnboardingComplete = async (appRole) => {
+    const updatedUser = await base44.auth.me();
+    setUser(updatedUser);
+    if (appRole === "volunteer") {
+      window.location.href = "/ImpactProfile";
+    }
+  };
+
   if (!user) return (
     <div className="min-h-screen bg-background flex items-center justify-center">
       <div className="w-8 h-8 border-4 border-primary/30 border-t-primary rounded-full animate-spin" />
     </div>
   );
+
+  if (!user.onboarding_complete) {
+    return <OnboardingFlow user={user} onComplete={handleOnboardingComplete} />;
+  }
 
   return (
     <div className="min-h-screen bg-background font-inter">
