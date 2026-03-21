@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import ProfileHeader from "@/components/profile/ProfileHeader";
 import ImpactStatsIcons from "@/components/profile/ImpactStatsIcons";
@@ -15,15 +15,28 @@ import MyCampaignsWindow from "@/components/profile/MyCampaignsWindow";
 import QuickMenu from "@/components/profile/QuickMenu";
 import MyCVPanel from "@/components/profile/MyCVPanel";
 import Navbar from "@/components/layout/Navbar";
+import OnboardingFlow from "@/components/onboarding/OnboardingFlow";
 import { X } from "lucide-react";
 
 export default function ImpactProfile() {
   const [user, setUser] = useState(null);
   const [activePanel, setActivePanel] = useState(null);
+  const qc = useQueryClient();
 
   useEffect(() => {
     base44.auth.me().then(setUser).catch(() => {});
   }, []);
+
+  // Real-time subscription so profile updates immediately when NGO accepts a request
+  useEffect(() => {
+    if (!user?.email) return;
+    const unsub = base44.entities.Activity.subscribe((event) => {
+      if (event.data?.user_email === user.email) {
+        qc.invalidateQueries({ queryKey: ["my-activities", user.email] });
+      }
+    });
+    return unsub;
+  }, [user?.email, qc]);
 
   const { data: profiles = [] } = useQuery({
     queryKey: ["impact-profile", user?.email],
