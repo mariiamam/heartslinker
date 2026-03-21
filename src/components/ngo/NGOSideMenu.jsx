@@ -113,6 +113,7 @@ export default function NGOSideMenu({ ngo, campaigns, activities, hourEntries, p
             {section === "volunteers" && <VolunteerBook activities={activities} hourEntries={hourEntries} ngo={ngo} />}
             {section === "hours" && <HoursRequests hourEntries={hourEntries} activities={activities} qc={qc} />}
             {section === "participation" && <ParticipationRequests requests={participationRequests || []} campaigns={campaigns} ngo={ngo} qc={qc} />}
+            {section === "log-hours" && <LogHoursPanel campaigns={campaigns} activities={activities} qc={qc} />}
           </div>
         </div>
       )}
