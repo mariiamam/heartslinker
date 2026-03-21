@@ -220,12 +220,12 @@ function CampaignHistory({ campaigns, activities }) {
 
   const endCampaign = useMutation({
     mutationFn: (id) => base44.entities.Campaign.update(id, { is_active: false }),
-    onSuccess: () => qc.invalidateQueries(["campaigns"]),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["ngo-campaigns"] }),
   });
 
   const deleteCampaign = useMutation({
     mutationFn: (id) => base44.entities.Campaign.delete(id),
-    onSuccess: () => { qc.invalidateQueries(["campaigns"]); setConfirmDelete(null); setExpandedId(null); },
+    onSuccess: () => { qc.invalidateQueries({ queryKey: ["ngo-campaigns"] }); setConfirmDelete(null); setExpandedId(null); },
   });
 
   if (!campaigns.length) return (
