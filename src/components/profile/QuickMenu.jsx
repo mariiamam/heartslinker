@@ -1,5 +1,6 @@
 import { useState } from "react";
-import { Menu, X, Settings, Bell, Briefcase, BarChart2, FileText } from "lucide-react";
+import { Menu, X, Settings, Bell, Briefcase, BarChart2, FileText, Download } from "lucide-react";
+import { Link } from "react-router-dom";
 
 const PANELS = [
   { key: "analytics", label: "Impact Analytics", icon: BarChart2, color: "bg-primary/10 text-primary" },
