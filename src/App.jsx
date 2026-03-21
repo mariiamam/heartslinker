@@ -7,6 +7,7 @@ import { AuthProvider, useAuth } from '@/lib/AuthContext';
 import UserNotRegisteredError from '@/components/UserNotRegisteredError';
 // Add page imports here
 import LogHours from "./pages/LogHours";
+import VolunteerReport from "./pages/VolunteerReport";
 import ImpactProfile from "./pages/ImpactProfile";
 import NGODashboard from "./pages/NGODashboard";
 import Landing from "./pages/Landing";
