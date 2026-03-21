@@ -11,6 +11,25 @@ export default function LogHours() {
   const [selectedCampaign, setSelectedCampaign] = useState(null);
   const [selectedActivity, setSelectedActivity] = useState(null);
   const [form, setForm] = useState({ date: "", hours: "", note: "" });
+
+  const currentYear = new Date().getFullYear();
+  const years = Array.from({ length: 10 }, (_, i) => currentYear - i);
+  const months = [
+    { value: "01", label: "Jan" }, { value: "02", label: "Feb" }, { value: "03", label: "Mar" },
+    { value: "04", label: "Apr" }, { value: "05", label: "May" }, { value: "06", label: "Jun" },
+    { value: "07", label: "Jul" }, { value: "08", label: "Aug" }, { value: "09", label: "Sep" },
+    { value: "10", label: "Oct" }, { value: "11", label: "Nov" }, { value: "12", label: "Dec" },
+  ];
+  const days = Array.from({ length: 31 }, (_, i) => String(i + 1).padStart(2, "0"));
+
+  const [dateDay, setDateDay] = useState("");
+  const [dateMonth, setDateMonth] = useState("");
+  const [dateYear, setDateYear] = useState(String(currentYear));
+
+  const buildDate = (d, m, y) => (d && m && y) ? `${y}-${m}-${d}` : "";
+  const handleDateChange = (d, m, y) => {
+    setForm(f => ({ ...f, date: buildDate(d, m, y) }));
+  };
   const [done, setDone] = useState(false);
 
   // Get NGO for current user
