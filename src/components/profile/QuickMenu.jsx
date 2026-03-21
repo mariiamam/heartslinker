@@ -10,6 +10,10 @@ const PANELS = [
   { key: "settings", label: "Settings", icon: Settings, color: "bg-secondary text-secondary-foreground" },
 ];
 
+const LINKS = [
+  { href: "/VolunteerReport", label: "My Report & CV Download", icon: Download, color: "bg-rose-100 text-rose-600" },
+];
+
 export default function QuickMenu({ activePanel, onSelect, unreadNotifications = 0 }) {
   const [open, setOpen] = useState(false);
 
