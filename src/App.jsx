@@ -62,6 +62,7 @@ const AuthenticatedApp = () => {
       <Route path="/NGOProfile" element={<NGOProfile />} />
       <Route path="/PublicUserProfile" element={<PublicUserProfile />} />
       <Route path="/LogHours" element={<LogHours />} />
+      <Route path="/VolunteerReport" element={<VolunteerReport />} />
       <Route path="*" element={<PageNotFound />} />
     </Routes>
   );
