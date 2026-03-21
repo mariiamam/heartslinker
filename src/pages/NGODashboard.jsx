@@ -61,6 +61,8 @@ export default function NGODashboard() {
     queryKey: ["participation-requests", ngo?.id],
     queryFn: () => base44.entities.CampaignParticipationRequest.filter({ ngo_id: ngo?.id }),
     enabled: !!ngo?.id,
+    refetchInterval: 15000,
+    staleTime: 0,
   });
 
   const handleOnboardingComplete = async (appRole) => {
