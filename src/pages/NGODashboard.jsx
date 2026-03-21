@@ -36,16 +36,17 @@ export default function NGODashboard() {
   const { data: hourEntries = [] } = useQuery({
     queryKey: ["hour-entries", ngo?.id],
     queryFn: async () => {
-      if (!activities.length) return [];
-      const activityIds = activities.map(a => a.id);
+      const allActivities = await base44.entities.Activity.filter({ ngo_id: ngo?.id });
+      if (!allActivities.length) return [];
+      const activityIds = allActivities.map(a => a.id);
       const all = await base44.entities.HourEntry.list("-created_date", 100);
       return all.filter(h => activityIds.includes(h.activity_id));
     },
-    enabled: !!activities.length,
+    enabled: !!ngo?.id,
   });
 
   const { data: campaigns = [] } = useQuery({
-    queryKey: ["campaigns", ngo?.id],
+    queryKey: ["ngo-campaigns", ngo?.id],
     queryFn: () => base44.entities.Campaign.filter({ ngo_id: ngo?.id }),
     enabled: !!ngo?.id,
   });
