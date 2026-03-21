@@ -418,6 +418,7 @@ function Detail({ label, value }) {
 function VolunteerBook({ activities, hourEntries, ngo }) {
   const qc = useQueryClient();
   const [showForm, setShowForm] = useState(false);
+  const [expandedEmail, setExpandedEmail] = useState(null);
   const [form, setForm] = useState({ name: "", email: "", phone: "", title: "", cause: "", start_date: "", hours: "", note: "" });
 
   const addVolunteer = useMutation({
@@ -434,7 +435,6 @@ function VolunteerBook({ activities, hourEntries, ngo }) {
         description: [form.name && `Name: ${form.name}`, form.phone && `Phone: ${form.phone}`, form.note].filter(Boolean).join(" · "),
         is_visible: true,
       });
-      // If hours provided, create an approved HourEntry directly
       if (form.hours && Number(form.hours) > 0) {
         await base44.entities.HourEntry.create({
           activity_id: activity.id,
@@ -459,7 +459,6 @@ function VolunteerBook({ activities, hourEntries, ngo }) {
 
   return (
     <div className="p-5 space-y-4">
-      {/* Add Volunteer Button */}
       <Button
         size="sm"
         className="w-full rounded-xl bg-primary hover:bg-primary/90 gap-1.5 text-xs"
@@ -468,7 +467,6 @@ function VolunteerBook({ activities, hourEntries, ngo }) {
         <UserPlus className="w-3.5 h-3.5" /> {showForm ? "Cancel" : "Add Volunteer Manually"}
       </Button>
 
-      {/* Add Form */}
       {showForm && (
         <div className="bg-muted/30 border border-border rounded-2xl p-4 space-y-3">
           <p className="text-xs font-bold text-foreground uppercase tracking-wide">Volunteer Info</p>
@@ -499,7 +497,6 @@ function VolunteerBook({ activities, hourEntries, ngo }) {
         </div>
       )}
 
-      {/* Volunteer List */}
       {volunteers.length === 0 && !showForm && (
         <div className="py-8 text-center text-muted-foreground text-sm">No volunteers yet.</div>
       )}
@@ -508,36 +505,53 @@ function VolunteerBook({ activities, hourEntries, ngo }) {
         const myActivities = activities.filter(a => a.user_email === v.user_email);
         const myHours = hourEntries.filter(h => h.user_email === v.user_email && h.status === "approved")
           .reduce((s, h) => s + (h.hours || 0), 0);
-        // Extract name from description if manually added
         const nameMatch = myActivities[0]?.description?.match(/Name:\s*([^·]+)/);
         const displayName = nameMatch ? nameMatch[1].trim() : null;
+        const isExpanded = expandedEmail === v.user_email;
 
         return (
-          <div key={v.user_email} className="border border-border rounded-2xl p-4">
-            <div className="flex items-center gap-3 mb-3">
+          <div key={v.user_email} className="border border-border rounded-2xl overflow-hidden">
+            {/* Collapsed header — click to expand */}
+            <button
+              className="w-full flex items-center gap-3 p-4 hover:bg-muted/30 transition-colors text-left"
+              onClick={() => setExpandedEmail(isExpanded ? null : v.user_email)}
+            >
               <div className="w-9 h-9 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold text-sm flex-shrink-0">
                 {(displayName || v.user_email)?.[0]?.toUpperCase()}
               </div>
-              <div>
+              <div className="flex-1 min-w-0">
                 {displayName && <p className="font-semibold text-foreground text-sm">{displayName}</p>}
-                <p className={`${displayName ? "text-xs text-muted-foreground" : "font-semibold text-foreground text-sm"}`}>{v.user_email}</p>
-                <p className="text-xs text-muted-foreground">{myActivities.length} activities · {myHours}h approved</p>
+                <p className={`${displayName ? "text-xs text-muted-foreground" : "font-semibold text-foreground text-sm"} truncate`}>{v.user_email}</p>
+                <p className="text-xs text-muted-foreground">{myActivities.length} activit{myActivities.length !== 1 ? "ies" : "y"} · {myHours}h approved</p>
               </div>
-            </div>
-            <div className="space-y-2">
-              {myActivities.map(act => (
-                <div key={act.id} className="flex items-start gap-2 text-xs bg-muted/40 rounded-xl px-3 py-2">
-                  <span className="text-base">{act.type === "donation" ? "💰" : "🤝"}</span>
-                  <div>
-                    <p className="font-medium text-foreground">{act.title}</p>
-                    <p className="text-muted-foreground">
-                      {act.cause ? `${act.cause} · ` : ""}
-                      {act.start_date ? format(new Date(act.start_date), "MMM d, yyyy") : ""}
-                    </p>
-                  </div>
-                </div>
-              ))}
-            </div>
+              {isExpanded ? <ChevronUp className="w-4 h-4 text-muted-foreground flex-shrink-0" /> : <ChevronDown className="w-4 h-4 text-muted-foreground flex-shrink-0" />}
+            </button>
+
+            {/* Expanded: campaigns with per-campaign hours */}
+            {isExpanded && (
+              <div className="border-t border-border bg-muted/20 px-4 pb-4 pt-3 space-y-2">
+                {myActivities.map(act => {
+                  const campHours = hourEntries
+                    .filter(h => h.activity_id === act.id && h.status === "approved")
+                    .reduce((s, h) => s + (h.hours || 0), 0);
+                  return (
+                    <div key={act.id} className="flex items-start gap-2 bg-white border border-border rounded-xl px-3 py-2.5">
+                      <span className="text-sm mt-0.5">{act.type === "donation" ? "💰" : "🤝"}</span>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-semibold text-foreground leading-tight">{act.title}</p>
+                        <p className="text-xs text-muted-foreground mt-0.5">
+                          {act.start_date ? format(new Date(act.start_date), "MMM d, yyyy") : ""}
+                          {act.cause ? ` · ${act.cause}` : ""}
+                        </p>
+                      </div>
+                      {act.type !== "donation" && (
+                        <span className="text-xs font-bold text-primary bg-primary/10 rounded-lg px-2 py-1 flex-shrink-0">{campHours}h</span>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+            )}
           </div>
         );
       })}
