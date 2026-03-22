@@ -357,14 +357,3 @@ function StatCard({ icon, value, label, color }) {
     </div>
   );
 }
-
-function buildMilestones(hours, campaigns, ngos) {
-  return [
-    { emoji: "🌱", label: "First Steps", desc: "Complete your first volunteering activity", achieved: campaigns >= 1 },
-    { emoji: "⏱️", label: "10 Hours Club", desc: "Log 10+ verified volunteer hours", achieved: hours >= 10 },
-    { emoji: "🤝", label: "Multi-NGO Volunteer", desc: "Volunteer with 2 or more NGOs", achieved: ngos >= 2 },
-    { emoji: "⭐", label: "50 Hours Star", desc: "Log 50+ verified volunteer hours", achieved: hours >= 50 },
-    { emoji: "🔥", label: "5 Campaigns", desc: "Participate in 5 different campaigns", achieved: campaigns >= 5 },
-    { emoji: "🏆", label: "Century Volunteer", desc: "Log 100+ verified volunteer hours", achieved: hours >= 100 },
-  ];
-}
