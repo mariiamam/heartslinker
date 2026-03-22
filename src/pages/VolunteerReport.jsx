@@ -233,29 +233,44 @@ export default function VolunteerReport() {
           </div>
         )}
 
-        {/* Milestones */}
+        {/* Badges */}
         <div className="bg-white border border-border rounded-2xl p-5 shadow-sm">
           <div className="flex items-center gap-2 mb-4">
             <Flame className="w-5 h-5 text-primary" />
-            <h2 className="font-bold text-foreground">Milestones</h2>
+            <h2 className="font-bold text-foreground">Badges & Milestones</h2>
           </div>
-          {milestones.length === 0 ? (
-            <p className="text-sm text-muted-foreground">Complete your first volunteering to unlock milestones!</p>
-          ) : (
-            <div className="space-y-3">
-              {milestones.map((m, i) => (
-                <div key={i} className="flex items-center gap-3">
-                  <span className="text-xl w-8 text-center">{m.emoji}</span>
-                  <div className="flex-1">
-                    <p className="text-sm font-semibold text-foreground">{m.label}</p>
-                    <p className="text-xs text-muted-foreground">{m.desc}</p>
-                  </div>
-                  <span className={`text-xs font-bold px-2.5 py-1 rounded-full ${m.achieved ? "bg-emerald-100 text-emerald-700" : "bg-muted text-muted-foreground"}`}>
-                    {m.achieved ? "Achieved ✓" : "Locked"}
-                  </span>
+
+          {/* Earned */}
+          {earnedBadges.length > 0 && (
+            <div className="flex flex-wrap gap-2 mb-4">
+              {earnedBadges.map(b => (
+                <div key={b.key} className={`flex items-center gap-2 px-3 py-2 rounded-xl border text-sm font-medium ${b.color}`}>
+                  <span>{b.emoji}</span> {b.name}
                 </div>
               ))}
             </div>
+          )}
+
+          {/* Next badge */}
+          {nextBadge && (
+            <div className="bg-muted/40 border border-border rounded-2xl p-4">
+              <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mb-2">Next Badge</p>
+              <div className="flex items-center gap-3">
+                <span className="text-2xl">{nextBadge.emoji}</span>
+                <div className="flex-1">
+                  <p className="text-sm font-bold text-foreground">{nextBadge.name}</p>
+                  <p className="text-xs text-muted-foreground mb-1.5">{nextBadge.desc}</p>
+                  <div className="h-1.5 bg-muted rounded-full overflow-hidden">
+                    <div className="h-full bg-gradient-to-r from-primary to-accent rounded-full" style={{ width: `${nextBadge.progressMax > 0 ? (nextBadge.progress / nextBadge.progressMax) * 100 : 0}%` }} />
+                  </div>
+                  <p className="text-[10px] text-muted-foreground mt-1">{nextBadge.progressLabel}</p>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {earnedBadges.length === 0 && !nextBadge && (
+            <p className="text-sm text-muted-foreground">Complete your first volunteering to unlock milestones!</p>
           )}
         </div>
 
