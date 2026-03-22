@@ -49,8 +49,10 @@ export default function VolunteerReport() {
     return { ...act, approvedHours: hrs };
   }).filter(a => a.approvedHours > 0).sort((a, b) => b.approvedHours - a.approvedHours);
 
-  // Milestones
-  const milestones = buildMilestones(totalHours, verifiedActivities.length, uniqueNGOs);
+  // Badges / Milestones
+  const badges = computeBadges({ activities, hourEntries });
+  const earnedBadges = badges.filter(b => b.achieved);
+  const nextBadge = badges.find(b => !b.achieved && b.progress > 0) || badges.find(b => !b.achieved);
 
   // Recent activity (last 10 hour entries)
   const recentEntries = [...approvedHours]
