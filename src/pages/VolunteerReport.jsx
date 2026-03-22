@@ -6,6 +6,7 @@ import { ArrowLeft, Download, Clock, Award, Flame, CheckCircle, BadgeCheck, Cale
 import { Button } from "@/components/ui/button";
 import { format } from "date-fns";
 import jsPDF from "jspdf";
+import { computeBadges } from "@/lib/badges";
 
 export default function VolunteerReport() {
   const [user, setUser] = useState(null);

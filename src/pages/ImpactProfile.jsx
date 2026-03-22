@@ -215,7 +215,7 @@ export default function ImpactProfile() {
             </TabsList>
             <div className="mt-4">
               <TabsContent value="badges">
-                <SectionCard title="Impact Badges"><BadgesSection badges={profile?.badges} /></SectionCard>
+                <SectionCard title="Impact Badges"><BadgesSection activities={activities} hourEntries={hourEntries} /></SectionCard>
               </TabsContent>
               <TabsContent value="skills">
                 <SectionCard title="Volunteering Skills"><SkillsSection skills={profile?.skills} /></SectionCard>
